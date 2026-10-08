@@ -1,6 +1,6 @@
 use bevy::{app::{Plugin, PreUpdate, Startup}, asset::Assets, camera::{Camera, Camera2d}, color::Color, ecs::{component::Component, query::With, resource::Resource, schedule::IntoScheduleConfigs, system::{Commands, ResMut, Single}}, input::InputSystems, math::Vec2, mesh::Mesh, sprite_render::ColorMaterial, transform::components::GlobalTransform, window::{PrimaryWindow, Window}};
 
-use crate::{character_controller::CharacterControllerPlugin, player::{Player, PlayerMovementPlugin}};
+use crate::{character_controller::CharacterControllerPlugin, input_system::{Controller, InputSystemPlugin}, player::{Player, PlayerMovementPlugin}};
 
 mod character_controller;
 mod input_system;
@@ -47,6 +47,7 @@ impl Plugin for RESLPlugin {
             // plugins
             .add_plugins((
                 CharacterControllerPlugin,
+                InputSystemPlugin,
                 PlayerMovementPlugin
             ))
 
@@ -65,5 +66,5 @@ fn setup(
     mut color_materials: ResMut<Assets<ColorMaterial>>
 ) {
     commands.spawn(Camera2d); 
-    Player::spawn(&mut commands, &mut meshes, &mut color_materials, Vec2::ZERO, Team::Attackers);
+    Player::spawn(&mut commands, &mut meshes, &mut color_materials, Controller::Human, Vec2::ZERO, Team::Attackers);
 }

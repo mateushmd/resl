@@ -2,20 +2,44 @@ use bevy::{app::{Plugin, Update}, ecs::{component::Component, query::With, syste
 
 use crate::MouseWorldPosition;
 
-#[derive(Component, Default)]
-struct HumanControlled;
-
-#[derive(Component, Default)]
-struct  AiControlled(usize);
-
-#[derive(Component, Default)]
-struct CharacterIntent {
-    move_direction: Vec2,
-    look_angle: f32,
-    is_shooting: bool,
+pub(crate) enum Controller {
+    Ai(usize),
+    Human
 }
 
-struct InputSystemPlugin;
+#[derive(Component, Default)]
+pub(crate) struct HumanControlled;
+
+#[derive(Component, Default)]
+pub(crate) struct AiControlled(usize);
+
+impl AiControlled {
+    pub fn new(id: usize) -> Self {
+        AiControlled(id)
+    }
+
+    pub fn id(&self) -> usize {
+        self.0
+    }
+}
+
+impl Controller {
+    pub fn bundle(&self) -> (Option<HumanControlled>, Option<AiControlled>) {
+        match self {
+            Self::Ai(id) => (None, Some(AiControlled(*id))),
+            Self::Human => (Some(HumanControlled), None)
+        }
+    }
+}
+
+#[derive(Component, Default)]
+pub(crate) struct CharacterIntent {
+    pub move_direction: Vec2,
+    pub look_angle: f32,
+    pub is_shooting: bool,
+}
+
+pub(super) struct InputSystemPlugin;
 
 impl Plugin for InputSystemPlugin {
     fn build(&self, app: &mut bevy::app::App) {

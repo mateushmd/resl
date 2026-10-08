@@ -4,7 +4,7 @@ use avian2d::{
 
 use bevy::{
     app::{Plugin, Update}, asset::Assets, ecs::{
-        component::Component, query::{With, Without}, system::{Commands, Res, Single}
+        bundle::Bundle, component::Component, query::{With, Without}, system::{Commands, Res, Single}
     }, math::{
         Quat, Vec2, Vec3, primitives::Triangle2d
     }, mesh::{
@@ -16,15 +16,16 @@ use bevy::{
     }, transform::components::Transform
 };
 
-use crate::{MouseWorldPosition, Team, character_controller::CharacterController};
-
-#[derive(Component)]
-#[require(CharacterController, Transform)]
-pub struct Player(Team);
+use crate::{MouseWorldPosition, Team, character_controller::CharacterController, input_system::{AiControlled, CharacterIntent, Controller, HumanControlled}};
 
 const PLAYER_BODY_TIP: Vec2 = Vec2::new(0.5, 0.);
 const PLAYER_BODY_BASE_TOP: Vec2 = Vec2::new(-0.25, 0.4330127);
 const PLAYER_BODY_BASE_BOTTOM: Vec2 = Vec2::new(-0.25, -0.4330127);
+
+
+#[derive(Component)]
+#[require(CharacterController, CharacterIntent, Transform)]
+pub(super) struct Player(Team);
 
 #[derive(Component)]
 #[require(Collider, MeshMaterial2d<ColorMaterial>, Mesh2d, Transform)]
@@ -35,18 +36,21 @@ impl Player {
         commands: &mut Commands,
         meshes: &mut Assets<Mesh>, 
         color_materials: &mut Assets<ColorMaterial>,
+        controller: Controller,
         position: Vec2,
         team: Team
     ) {
         let team_color = team.get_color();
 
-        commands.spawn((
+        let mut entity_cmds = commands.spawn((
             CharacterController,
             Player(team),
             RigidBody::Kinematic,
             Collider::circle(16.),
             Transform::from_translation(position.extend(1.))
-        )).with_children(|parent| {
+        ));
+
+        entity_cmds.with_children(|parent| {
             parent.spawn((
                 PlayerBody,
                 Collider::triangle_unchecked(
@@ -64,10 +68,15 @@ impl Player {
                     .with_translation(Vec3::new(0., 0., 0.1))
             ));
         });
+
+        match controller {
+            Controller::Ai(id) => entity_cmds.insert(AiControlled::new(id)),
+            Controller::Human => entity_cmds.insert(HumanControlled)
+        };
     }
 }
 
-pub struct PlayerMovementPlugin;
+pub(super) struct PlayerMovementPlugin;
 
 impl Plugin for PlayerMovementPlugin {
     fn build(&self, app: &mut bevy::app::App) {
@@ -77,14 +86,8 @@ impl Plugin for PlayerMovementPlugin {
 
 fn player_rotation(
     mouse_world_position: Res<MouseWorldPosition>,
-    player_transform: Single<&Transform, (With<Player>, Without<PlayerBody>)>,
+    intent: Single<&CharacterIntent, (With<Player>, Without<PlayerBody>)>,
     mut player_body_transform: Single<&mut Transform, (With<PlayerBody>, Without<Player>)>
 ) {
-    if let Some(position) = mouse_world_position.0 {
-        let diff = position - player_transform.translation.truncate();        
-
-        let angle = diff.y.atan2(diff.x);
-
-        player_body_transform.rotation = Quat::from_rotation_z(angle);
-    }
+    player_body_transform.rotation = Quat::from_rotation_z(intent.look_angle);
 }
