@@ -3,7 +3,23 @@ use bevy::{app::{Plugin, PreUpdate, Startup}, asset::Assets, camera::{Camera, Ca
 use crate::{character_controller::CharacterControllerPlugin, player::{Player, PlayerMovementPlugin}};
 
 mod character_controller;
+mod input_system;
 mod player;
+
+#[derive(Component)]
+enum Team {
+    Attackers,
+    Defenders
+}
+
+impl Team {
+    pub fn get_color(&self) -> Color {
+        match self {
+            Self::Attackers => Color::srgba(1., 0., 0., 1.),
+            Self::Defenders => Color::srgba(0., 0., 1., 1.)
+        }
+    }
+}
 
 #[derive(Resource, Default)]
 struct MouseWorldPosition(pub Option<Vec2>);
@@ -19,21 +35,6 @@ fn update_mouse_world_position(
         mouse_pos.0 = cam.viewport_to_world_2d(cam_transform, cursor_pos).ok();
     } else {
         mouse_pos.0 = None;
-    }
-}
-
-#[derive(Component)]
-enum Team {
-    Attackers,
-    Defenders
-}
-
-impl Team {
-    pub fn get_color(&self) -> Color {
-        match self {
-            Self::Attackers => Color::srgba(1., 0., 0., 1.),
-            Self::Defenders => Color::srgba(0., 0., 1., 1.)
-        }
     }
 }
 
