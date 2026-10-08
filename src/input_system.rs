@@ -1,10 +1,20 @@
-use bevy::{app::{Plugin, Update}, ecs::{component::Component, query::With, system::{Query, Res, Single}}, input::{ButtonInput, keyboard::KeyCode, mouse::MouseButton}, math::Vec2, transform::components::Transform};
+use bevy::{
+    app::{Plugin, Update},
+    ecs::{
+        component::Component,
+        query::With,
+        system::{Query, Res, Single},
+    },
+    input::{keyboard::KeyCode, mouse::MouseButton, ButtonInput},
+    math::Vec2,
+    transform::components::Transform,
+};
 
 use crate::MouseWorldPosition;
 
 pub(crate) enum Controller {
     Ai(usize),
-    Human
+    Human,
 }
 
 #[derive(Component, Default)]
@@ -27,7 +37,7 @@ impl Controller {
     pub fn bundle(&self) -> (Option<HumanControlled>, Option<AiControlled>) {
         match self {
             Self::Ai(id) => (None, Some(AiControlled(*id))),
-            Self::Human => (Some(HumanControlled), None)
+            Self::Human => (Some(HumanControlled), None),
         }
     }
 }
@@ -43,7 +53,7 @@ pub(super) struct InputSystemPlugin;
 
 impl Plugin for InputSystemPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_systems(Update, human_input_system);     
+        app.add_systems(Update, human_input_system);
     }
 }
 
@@ -55,16 +65,24 @@ fn human_input_system(
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     mouse_pos: Res<MouseWorldPosition>,
-    mut query: Single<(&Transform, &mut CharacterIntent), With<HumanControlled>>
+    mut query: Single<(&Transform, &mut CharacterIntent), With<HumanControlled>>,
 ) {
     let (transform, mut intent) = query.into_inner();
 
     let mut direction = Vec2::ZERO;
 
-    if keyboard.pressed(KeyCode::KeyW) { direction.y += 1.0; }
-    if keyboard.pressed(KeyCode::KeyS) { direction.y -= 1.0; }
-    if keyboard.pressed(KeyCode::KeyA) { direction.x -= 1.0; }
-    if keyboard.pressed(KeyCode::KeyD) { direction.x += 1.0; }
+    if keyboard.pressed(KeyCode::KeyW) {
+        direction.y += 1.0;
+    }
+    if keyboard.pressed(KeyCode::KeyS) {
+        direction.y -= 1.0;
+    }
+    if keyboard.pressed(KeyCode::KeyA) {
+        direction.x -= 1.0;
+    }
+    if keyboard.pressed(KeyCode::KeyD) {
+        direction.x += 1.0;
+    }
 
     intent.move_direction = direction.normalize_or_zero();
 

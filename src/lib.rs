@@ -1,6 +1,28 @@
-use bevy::{app::{Plugin, PreUpdate, Startup}, asset::Assets, camera::{Camera, Camera2d}, color::Color, ecs::{component::Component, query::With, resource::Resource, schedule::IntoScheduleConfigs, system::{Commands, ResMut, Single}}, input::InputSystems, math::Vec2, mesh::Mesh, sprite_render::ColorMaterial, transform::components::GlobalTransform, window::{PrimaryWindow, Window}};
+use bevy::{
+    app::{Plugin, PreUpdate, Startup},
+    asset::Assets,
+    camera::{Camera, Camera2d},
+    color::Color,
+    ecs::{
+        component::Component,
+        query::With,
+        resource::Resource,
+        schedule::IntoScheduleConfigs,
+        system::{Commands, ResMut, Single},
+    },
+    input::InputSystems,
+    math::Vec2,
+    mesh::Mesh,
+    sprite_render::ColorMaterial,
+    transform::components::GlobalTransform,
+    window::{PrimaryWindow, Window},
+};
 
-use crate::{character_controller::CharacterControllerPlugin, input_system::{Controller, InputSystemPlugin}, player::{Player, PlayerMovementPlugin}};
+use crate::{
+    character_controller::CharacterControllerPlugin,
+    input_system::{Controller, InputSystemPlugin},
+    player::{Player, PlayerMovementPlugin},
+};
 
 mod character_controller;
 mod input_system;
@@ -9,14 +31,14 @@ mod player;
 #[derive(Component)]
 enum Team {
     Attackers,
-    Defenders
+    Defenders,
 }
 
 impl Team {
     pub fn get_color(&self) -> Color {
         match self {
             Self::Attackers => Color::srgba(1., 0., 0., 1.),
-            Self::Defenders => Color::srgba(0., 0., 1., 1.)
+            Self::Defenders => Color::srgba(0., 0., 1., 1.),
         }
     }
 }
@@ -27,7 +49,7 @@ struct MouseWorldPosition(pub Option<Vec2>);
 fn update_mouse_world_position(
     window: Single<&Window, With<PrimaryWindow>>,
     camera: Single<(&Camera, &GlobalTransform), With<Camera2d>>,
-    mut mouse_pos: ResMut<MouseWorldPosition>
+    mut mouse_pos: ResMut<MouseWorldPosition>,
 ) {
     if let Some(cursor_pos) = window.cursor_position() {
         let (cam, cam_transform) = *camera;
@@ -43,18 +65,15 @@ pub struct RESLPlugin;
 impl Plugin for RESLPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app
-
             // plugins
             .add_plugins((
                 CharacterControllerPlugin,
                 InputSystemPlugin,
-                PlayerMovementPlugin
+                PlayerMovementPlugin,
             ))
-
             // systems
             .add_systems(Startup, setup)
             .add_systems(PreUpdate, update_mouse_world_position.after(InputSystems))
-
             // resources
             .init_resource::<MouseWorldPosition>();
     }
@@ -63,8 +82,15 @@ impl Plugin for RESLPlugin {
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut color_materials: ResMut<Assets<ColorMaterial>>
+    mut color_materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    commands.spawn(Camera2d); 
-    Player::spawn(&mut commands, &mut meshes, &mut color_materials, Controller::Human, Vec2::ZERO, Team::Attackers);
+    commands.spawn(Camera2d);
+    Player::spawn(
+        &mut commands,
+        &mut meshes,
+        &mut color_materials,
+        Controller::Human,
+        Vec2::ZERO,
+        Team::Attackers,
+    );
 }
