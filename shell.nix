@@ -3,11 +3,13 @@ let
   buildInputs = with pkgs; [
     # rust
     cargo
+    clang
     clippy
-    rustc
-    rustfmt
     gcc
     gdb
+    mold
+    rustc
+    rustfmt
 
     # bevy
     udev
