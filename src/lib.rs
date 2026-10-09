@@ -19,16 +19,15 @@ use bevy::{
 };
 
 use crate::{
-    character_controller::CharacterControllerPlugin,
-    input_system::{Controller, InputSystemPlugin},
-    player::{Player, PlayerMovementPlugin},
+    character_controller::CharacterControllerPlugin, combat::CombatPlugin, input_system::{Controller, InputSystemPlugin}, player::{Player, PlayerMovementPlugin},
 };
 
 mod character_controller;
+mod combat;
 mod input_system;
 mod player;
 
-#[derive(Component)]
+#[derive(Clone, Component, Copy)]
 enum Team {
     Attackers,
     Defenders,
@@ -68,6 +67,7 @@ impl Plugin for RESLPlugin {
             // plugins
             .add_plugins((
                 CharacterControllerPlugin,
+                CombatPlugin,
                 InputSystemPlugin,
                 PlayerMovementPlugin,
             ))
@@ -85,12 +85,4 @@ fn setup(
     mut color_materials: ResMut<Assets<ColorMaterial>>,
 ) {
     commands.spawn(Camera2d);
-    Player::spawn(
-        &mut commands,
-        &mut meshes,
-        &mut color_materials,
-        Controller::Human,
-        Vec2::ZERO,
-        Team::Attackers,
-    );
 }

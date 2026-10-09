@@ -10,7 +10,6 @@ use bevy::{
         system::{Res, Single},
     },
     input::{keyboard::KeyCode, ButtonInput},
-    math::Vec2,
     transform::components::Transform,
 };
 

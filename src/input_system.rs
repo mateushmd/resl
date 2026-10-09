@@ -7,7 +7,7 @@ use bevy::{
     },
     input::{keyboard::KeyCode, mouse::MouseButton, ButtonInput},
     math::Vec2,
-    transform::components::Transform,
+   transform::components::Transform,
 };
 
 use crate::MouseWorldPosition;
@@ -30,15 +30,6 @@ impl AiControlled {
 
     pub fn id(&self) -> usize {
         self.0
-    }
-}
-
-impl Controller {
-    pub fn bundle(&self) -> (Option<HumanControlled>, Option<AiControlled>) {
-        match self {
-            Self::Ai(id) => (None, Some(AiControlled(*id))),
-            Self::Human => (Some(HumanControlled), None),
-        }
     }
 }
 
@@ -65,7 +56,7 @@ fn human_input_system(
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     mouse_pos: Res<MouseWorldPosition>,
-    mut query: Single<(&Transform, &mut CharacterIntent), With<HumanControlled>>,
+    query: Single<(&Transform, &mut CharacterIntent), With<HumanControlled>>,
 ) {
     let (transform, mut intent) = query.into_inner();
 
