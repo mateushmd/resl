@@ -1,9 +1,9 @@
 use avian2d::{collision::collider::Collider, dynamics::rigid_body::RigidBody};
 
 use bevy::{
-    app::{Plugin, Startup, Update}, asset::{Assets, Handle}, color::{Color, palettes::css}, ecs::{
-        component::Component, hierarchy::{ChildOf, Children}, query::{With, Without}, relationship::RelatedSpawnerCommands, resource::Resource, system::{Commands, EntityCommands, Query, Res, ResMut, Single},
-    }, gizmos::gizmos::Gizmos, math::{Isometry2d, Quat, Vec2, Vec3, primitives::Triangle2d}, mesh::{Mesh, Mesh2d}, sprite_render::{ColorMaterial, MeshMaterial2d}, transform::components::Transform,
+    app::{FixedUpdate, Plugin, Startup, Update}, asset::{Assets, Handle}, color::{Color, palettes::css}, ecs::{
+        component::Component, hierarchy::{ChildOf, Children}, query::With, relationship::RelatedSpawnerCommands, resource::Resource, system::{Commands, EntityCommands, Query, ResMut},
+    }, gizmos::gizmos::Gizmos, math::{Quat, Vec2, Vec3, primitives::Triangle2d}, mesh::{Mesh, Mesh2d}, sprite_render::{ColorMaterial, MeshMaterial2d}, transform::components::Transform,
 };
 
 use crate::{
@@ -99,7 +99,7 @@ impl Player {
         position: Vec2,
         team: Option<Team>,
     ) {
-        let mut entity_cmds = Self::spawn_base(commands, player_assets, position, team);
+        Self::spawn_base(commands, player_assets, position, team);
     }
 }
 
@@ -111,8 +111,10 @@ pub(super) struct PlayerMovementPlugin;
 
 impl Plugin for PlayerMovementPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_systems(Startup, setup);
-        app.add_systems(Update, (player_rotation, draw_gizmos));
+        app
+            .add_systems(Startup, setup)
+            .add_systems(Update, draw_gizmos)
+            .add_systems(FixedUpdate, body_rotation);
     }
 }
 
@@ -158,7 +160,7 @@ fn setup(
     );
 }
 
-fn player_rotation(
+fn body_rotation(
     parent_query: Query<(&CharacterIntent, &Children)>,
     mut child_query: Query<&mut Transform, With<PlayerBody>>,
 ) {
