@@ -20,11 +20,11 @@ use crate::{
     character_controller::CharacterController,
     weapon::{FireWeaponMessage, WeaponMuzzle},
     input_system::{AiControlled, CharacterIntent, Controller, HumanControlled},
-    player::player_body::{PlayerBody, PlayerBodyPlugin},
+    player::player_body::{SpawnBodyExt, BodyPlugin},
     Team,
 };
 
-mod player_body;
+mod body;
 
 #[derive(Resource, Clone)]
 struct PlayerAssets {
@@ -55,14 +55,14 @@ impl Player {
         ));
 
         entity_cmds.with_children(|parent| {
-            parent.spawn(PlayerBody::bundle(
+            parent.spawn_body(
                 player_assets.body_mesh.clone(),
                 match team {
                     Some(Team::Attackers) => player_assets.attacker_color.clone(),
                     Some(Team::Defenders) => player_assets.defender_color.clone(),
                     None => player_assets.dummy_color.clone(),
                 },
-            ));
+            );
         });
 
         entity_cmds
@@ -103,7 +103,7 @@ pub(super) struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_plugins(PlayerBodyPlugin)
+        app.add_plugins(BodyPlugin)
             .add_systems(PostStartup, setup)
             .add_systems(FixedUpdate, (children_rotation, process_shoot_intents));
     }

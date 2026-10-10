@@ -1,20 +1,9 @@
 use avian2d::collision::collider::Collider;
 
 use bevy::{
-    app::{Plugin, Startup},
-    asset::{Assets, Handle},
-    color::Color,
-    ecs::{
-        bundle::Bundle,
-        component::Component,
-        hierarchy::ChildOf,
-        relationship::RelatedSpawnerCommands,
-        system::{Commands, ResMut},
-    },
-    math::{primitives::Triangle2d, Vec2, Vec3},
-    mesh::{Mesh, Mesh2d},
-    sprite_render::{ColorMaterial, MeshMaterial2d},
-    transform::components::Transform,
+    app::{Plugin, Startup}, asset::{Assets, Handle}, color::Color, ecs::{
+        bundle::Bundle, component::Component, event::Trigger, hierarchy::ChildOf, lifecycle::Add, observer::On, relationship::RelatedSpawnerCommands, system::{Commands, ResMut},
+    }, math::{Vec2, Vec3, primitives::Triangle2d}, mesh::{Mesh, Mesh2d}, sprite_render::{ColorMaterial, MeshMaterial2d}, transform::components::Transform,
 };
 
 use crate::{
@@ -28,12 +17,12 @@ const PLAYER_BODY_BASE_BOTTOM: Vec2 = Vec2::new(-0.25, -0.4330127);
 
 #[derive(Component)]
 #[require(Collider, MeshMaterial2d<ColorMaterial>, Mesh2d, Rotate, Transform)]
-pub(super) struct PlayerBody;
+pub(super) struct Body;
 
-impl PlayerBody {
-    pub fn bundle(mesh: Handle<Mesh>, color: Handle<ColorMaterial>) -> impl Bundle {
+impl Body {
+    fn bundle(mesh: Handle<Mesh>, color: Handle<ColorMaterial>) -> impl Bundle {
         (
-            PlayerBody,
+            Body,
             Collider::triangle_unchecked(
                 PLAYER_BODY_TIP,
                 PLAYER_BODY_BASE_TOP,
@@ -47,9 +36,19 @@ impl PlayerBody {
     }
 }
 
-pub(super) struct PlayerBodyPlugin;
+pub(super) trait SpawnBodyExt {
+    fn spawn_body(&mut self, mesh: Handle<Mesh>, color: Handle<ColorMaterial>);
+}
 
-impl Plugin for PlayerBodyPlugin {
+impl SpawnBodyExt for RelatedSpawnerCommands<'_, ChildOf> {
+    fn spawn_body(&mut self, mesh: Handle<Mesh>, color: Handle<ColorMaterial>) {
+        self.spawn(Body::bundle(mesh, color));
+    }
+}
+
+pub(super) struct BodyPlugin;
+
+impl Plugin for BodyPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_systems(Startup, setup);
     }
