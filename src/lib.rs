@@ -19,16 +19,14 @@ use bevy::{
 };
 
 use crate::{
-    character_controller::CharacterControllerPlugin,
-    weapon::WeaponPlugin,
-    input_system::{Controller, InputSystemPlugin},
-    player::PlayerPlugin,
+    character_controller::CharacterControllerPlugin, input_system::{Controller, InputSystemPlugin}, player::PlayerPlugin, sfx::SfxPlugin, weapon::WeaponPlugin,
 };
 
 mod character_controller;
 mod weapon;
 mod input_system;
 mod player;
+mod sfx;
 
 #[derive(Clone, Component, Copy)]
 enum Team {
@@ -73,6 +71,7 @@ impl Plugin for RESLPlugin {
                 WeaponPlugin,
                 InputSystemPlugin,
                 PlayerPlugin,
+                SfxPlugin
             ))
             // systems
             .add_systems(Startup, setup)
