@@ -3,11 +3,9 @@ use bevy::{
     app::{AppExit, FixedUpdate, Plugin, Update},
     color::palettes::css,
     ecs::{
-        bundle::Bundle,
         component::Component,
         entity::Entity,
         message::{Message, MessageReader, MessageWriter},
-        query::With,
         system::Query,
     },
     gizmos::gizmos::Gizmos,
@@ -30,9 +28,9 @@ pub(crate) struct FireWeaponMessage {
     pub weapon: Entity,
 }
 
-pub(super) struct CombatPlugin;
+pub(super) struct WeaponPlugin;
 
-impl Plugin for CombatPlugin {
+impl Plugin for WeaponPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_message::<FireWeaponMessage>()
             .add_systems(Update, draw_gizmos)

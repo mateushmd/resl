@@ -1,8 +1,7 @@
 use avian2d::{collision::collider::Collider, dynamics::rigid_body::RigidBody};
 use bevy::{
-    app::{FixedUpdate, Plugin, PostStartup, Update},
+    app::{FixedUpdate, Plugin, PostStartup},
     asset::Handle,
-    color::palettes::css,
     ecs::{
         component::Component,
         hierarchy::Children,
@@ -11,8 +10,7 @@ use bevy::{
         resource::Resource,
         system::{Commands, EntityCommands, Query, Res},
     },
-    gizmos::gizmos::Gizmos,
-    math::{Quat, Vec2, Vec3},
+    math::{Quat, Vec2},
     mesh::Mesh,
     sprite_render::ColorMaterial,
     transform::components::Transform,
@@ -20,7 +18,7 @@ use bevy::{
 
 use crate::{
     character_controller::CharacterController,
-    combat::{FireWeaponMessage, WeaponMuzzle},
+    weapon::{FireWeaponMessage, WeaponMuzzle},
     input_system::{AiControlled, CharacterIntent, Controller, HumanControlled},
     player::player_body::{PlayerBody, PlayerBodyPlugin},
     Team,

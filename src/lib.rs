@@ -20,13 +20,13 @@ use bevy::{
 
 use crate::{
     character_controller::CharacterControllerPlugin,
-    combat::CombatPlugin,
+    weapon::WeaponPlugin,
     input_system::{Controller, InputSystemPlugin},
     player::PlayerPlugin,
 };
 
 mod character_controller;
-mod combat;
+mod weapon;
 mod input_system;
 mod player;
 
@@ -70,7 +70,7 @@ impl Plugin for RESLPlugin {
             // plugins
             .add_plugins((
                 CharacterControllerPlugin,
-                CombatPlugin,
+                WeaponPlugin,
                 InputSystemPlugin,
                 PlayerPlugin,
             ))
