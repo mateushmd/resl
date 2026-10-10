@@ -17,11 +17,7 @@ use bevy::{
 };
 
 use crate::{
-    character_controller::CharacterController,
-    weapon::{FireWeaponMessage, WeaponMuzzle},
-    input_system::{AiControlled, CharacterIntent, Controller, HumanControlled},
-    player::player_body::{SpawnBodyExt, BodyPlugin},
-    Team,
+    Team, character_controller::CharacterController, input_system::{AiControlled, CharacterIntent, Controller, HumanControlled}, player::body::{BodyPlugin, SpawnBodyExt}, weapon::{FireWeaponMessage, SpawnWeaponExt, WeaponMuzzle},
 };
 
 mod body;
@@ -80,7 +76,7 @@ impl Player {
         entity_cmds.insert((CharacterController, Player(team)));
 
         entity_cmds.with_children(|parent| {
-            parent.spawn((Rotate, WeaponMuzzle::new(Vec2::new(25., 0.))));
+            parent.spawn_waepon(Vec2::new(25., 0.)).insert(Rotate);
         });
 
         match controller {
