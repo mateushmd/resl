@@ -19,7 +19,10 @@ use bevy::{
 };
 
 use crate::{
-    character_controller::CharacterControllerPlugin, combat::CombatPlugin, input_system::{Controller, InputSystemPlugin}, player::{Player, PlayerMovementPlugin},
+    character_controller::CharacterControllerPlugin,
+    combat::CombatPlugin,
+    input_system::{Controller, InputSystemPlugin},
+    player::PlayerPlugin,
 };
 
 mod character_controller;
@@ -69,7 +72,7 @@ impl Plugin for RESLPlugin {
                 CharacterControllerPlugin,
                 CombatPlugin,
                 InputSystemPlugin,
-                PlayerMovementPlugin,
+                PlayerPlugin,
             ))
             // systems
             .add_systems(Startup, setup)

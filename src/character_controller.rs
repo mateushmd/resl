@@ -3,11 +3,9 @@ use avian2d::{
     dynamics::rigid_body::{LinearVelocity, RigidBody},
 };
 use bevy::{
-    app::{FixedUpdate, Plugin}, ecs::{
-        component::Component,
-        query::With,
-        system::Single
-    }, transform::components::Transform,
+    app::{FixedUpdate, Plugin},
+    ecs::{component::Component, query::With, system::Single},
+    transform::components::Transform,
 };
 
 use crate::input_system::CharacterIntent;

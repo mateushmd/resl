@@ -7,7 +7,7 @@ use bevy::{
     },
     input::{keyboard::KeyCode, mouse::MouseButton, ButtonInput},
     math::Vec2,
-   transform::components::Transform,
+    transform::components::Transform,
 };
 
 use crate::MouseWorldPosition;
@@ -37,7 +37,7 @@ impl AiControlled {
 pub(crate) struct CharacterIntent {
     pub move_direction: Vec2,
     pub look_angle: f32,
-    pub is_shooting: bool
+    pub is_shooting: bool,
 }
 
 pub(super) struct InputSystemPlugin;
