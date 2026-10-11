@@ -1,26 +1,16 @@
 use avian2d::{collision::collider::Collider, dynamics::rigid_body::RigidBody};
 use bevy::{
-    app::{FixedUpdate, Plugin, PostStartup},
-    asset::Handle,
-    ecs::{
-        component::Component,
-        hierarchy::Children,
-        message::MessageWriter,
-        query::With,
-        resource::Resource,
-        system::{Commands, EntityCommands, Query, Res},
-    },
-    math::{Quat, Vec2},
-    mesh::Mesh,
-    sprite_render::ColorMaterial,
-    transform::components::Transform,
+    app::{FixedUpdate, Plugin, PostStartup}, asset::Handle, ecs::{
+        component::Component, entity::Entity, hierarchy::Children, message::{Message, MessageReader, MessageWriter}, query::With, resource::Resource, system::{Commands, EntityCommands, Query, Res},
+    }, math::{Quat, Vec2}, mesh::Mesh, sprite_render::ColorMaterial, transform::components::Transform,
 };
 
 use crate::{
-    Team, character_controller::CharacterController, input_system::{AiControlled, CharacterIntent, Controller, HumanControlled}, player::body::{BodyPlugin, SpawnBodyExt}, weapon::{FireWeaponMessage, SpawnWeaponExt, WeaponMuzzle},
+    Team, character_controller::CharacterController, input_system::{AiControlled, CharacterIntent, Controller, HumanControlled}, player::{body::{BodyPlugin, SpawnBodyExt}, health::{Health, HealthPlugin}}, weapon::{FireWeaponMessage, SpawnWeaponExt, WeaponMuzzle},
 };
 
 mod body;
+pub(crate) mod health;
 
 #[derive(Resource, Clone)]
 struct PlayerAssets {
@@ -29,6 +19,9 @@ struct PlayerAssets {
     pub defender_color: Handle<ColorMaterial>,
     pub dummy_color: Handle<ColorMaterial>,
 }
+
+#[derive(Message, Clone)]
+pub(crate) struct DeathMessage(pub Entity);
 
 #[derive(Component, Default)]
 struct Rotate;
@@ -47,6 +40,7 @@ impl Player {
         let mut entity_cmds = commands.spawn((
             RigidBody::Kinematic,
             Collider::circle(16.),
+            Health::new(100),
             Transform::from_translation(position.extend(1.)),
         ));
 
@@ -99,7 +93,8 @@ pub(super) struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_plugins(BodyPlugin)
+        app
+            .add_plugins((BodyPlugin, HealthPlugin))
             .add_systems(PostStartup, setup)
             .add_systems(FixedUpdate, (children_rotation, process_shoot_intents));
     }
@@ -143,5 +138,13 @@ fn process_shoot_intents(
                 }
             }
         }
+    }
+}
+
+fn process_death_messages(
+    mut message_reader: MessageReader<DeathMessage>
+) {
+    for message in message_reader.read() {
+         
     }
 }

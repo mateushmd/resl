@@ -5,7 +5,7 @@ use bevy::{
     }, gizmos::gizmos::Gizmos, math::{Dir2, Quat, Vec2, Vec3}, pbr::ViewFogUniformOffset, time::Time, transform::components::{GlobalTransform, Transform},
 };
 use rand::RngExt;
-use crate::sfx::SpawnSfxExt;
+use crate::{player::health::DamageMessage, sfx::SpawnSfxExt};
 
 #[derive(Component)]
 struct FireInterval {
@@ -97,7 +97,8 @@ fn shoot_system(
     mut fire_messages: MessageReader<FireWeaponMessage>,
     mut query: Query<(&mut FireInterval, &GlobalTransform, &Transform, &WeaponMuzzle, &mut WeaponRecoil)>,
     spatial_query: SpatialQuery,
-    mut message_writter: MessageWriter<AppExit>,
+    mut app_exit_message_writter: MessageWriter<AppExit>,
+    mut damage_message_writer: MessageWriter<DamageMessage>
 ) {
     for event in fire_messages.read() {
         if let Ok((mut fire_interval, global_transform, transform, muzzle, mut recoil)) = query.get_mut(event.weapon) {
@@ -128,7 +129,7 @@ fn shoot_system(
                         true,
                         &SpatialQueryFilter::default(),
                     ) {
-                        println!("hit");
+                        damage_message_writer.write(DamageMessage::new(hit.entity, 25));
                         (ray_pos + (ray_dir * (hit.distance / 2.)), hit.distance)
                     } else {
                         (ray_pos + (ray_dir * 1000.), 2000.)
@@ -143,7 +144,7 @@ fn shoot_system(
             bevy::log::tracing::error!(
                 "the entity from the message payload lacks a component of type WeaponMuzzle"
             );
-            message_writter.write(AppExit::error());
+            app_exit_message_writter.write(AppExit::error());
         }
     }
 }
