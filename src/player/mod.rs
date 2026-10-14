@@ -1,16 +1,15 @@
 use avian2d::{collision::collider::Collider, dynamics::rigid_body::RigidBody};
 use bevy::{
     app::{FixedUpdate, Plugin, PostStartup}, asset::Handle, ecs::{
-        component::Component, entity::Entity, hierarchy::Children, message::{Message, MessageReader, MessageWriter}, query::With, resource::Resource, system::{Commands, EntityCommands, Query, Res},
+        component::Component, entity, hierarchy::Children, message::{MessageReader, MessageWriter}, query::With, resource::Resource, system::{Commands, EntityCommands, Query, Res},
     }, math::{Quat, Vec2}, mesh::Mesh, sprite_render::ColorMaterial, transform::components::Transform,
 };
 
 use crate::{
-    Team, character_controller::CharacterController, input_system::{AiControlled, CharacterIntent, Controller, HumanControlled}, player::{body::{BodyPlugin, SpawnBodyExt}, health::{Health, HealthPlugin}}, weapon::{FireWeaponMessage, SpawnWeaponExt, WeaponMuzzle},
+    Team, character_controller::CharacterController, combat::{health::{DeathMessage, Health}, weapon::{FireWeaponMessage, SpawnWeaponExt, WeaponMuzzle}}, input_system::{AiControlled, CharacterIntent, Controller, HumanControlled}, player::body::{BodyPlugin, SpawnBodyExt}
 };
 
 mod body;
-pub(crate) mod health;
 
 #[derive(Resource, Clone)]
 struct PlayerAssets {
@@ -20,15 +19,12 @@ struct PlayerAssets {
     pub dummy_color: Handle<ColorMaterial>,
 }
 
-#[derive(Message, Clone)]
-pub(crate) struct DeathMessage(pub Entity);
-
 #[derive(Component, Default)]
 struct Rotate;
 
 #[derive(Component)]
 #[require(Transform)]
-pub(super) struct Player(Team);
+struct Player(Option<Team>);
 
 impl Player {
     fn spawn_base<'a>(
@@ -41,11 +37,15 @@ impl Player {
             RigidBody::Kinematic,
             Collider::circle(16.),
             Health::new(100),
+            Player(team),
             Transform::from_translation(position.extend(1.)),
         ));
 
+        let id = entity_cmds.id();
+
         entity_cmds.with_children(|parent| {
             parent.spawn_body(
+                id,
                 player_assets.body_mesh.clone(),
                 match team {
                     Some(Team::Attackers) => player_assets.attacker_color.clone(),
@@ -67,10 +67,10 @@ impl Player {
     ) {
         let mut entity_cmds = Self::spawn_base(commands, player_assets, position, Some(team));
 
-        entity_cmds.insert((CharacterController, Player(team)));
+        entity_cmds.insert(CharacterController);
 
         entity_cmds.with_children(|parent| {
-            parent.spawn_waepon(Vec2::new(25., 0.)).insert(Rotate);
+            parent.spawn_weapon(Vec2::new(25., 0.)).insert(Rotate);
         });
 
         match controller {
@@ -94,9 +94,9 @@ pub(super) struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app
-            .add_plugins((BodyPlugin, HealthPlugin))
+            .add_plugins(BodyPlugin)
             .add_systems(PostStartup, setup)
-            .add_systems(FixedUpdate, (children_rotation, process_shoot_intents));
+            .add_systems(FixedUpdate, (children_rotation, process_shoot_intents, process_death_messages));
     }
 }
 
@@ -142,9 +142,14 @@ fn process_shoot_intents(
 }
 
 fn process_death_messages(
+    mut commands: Commands,
+    query: Query<&Player>,
     mut message_reader: MessageReader<DeathMessage>
 ) {
     for message in message_reader.read() {
-         
+        println!("{}", query.contains(message.target()));
+        if query.contains(message.target()) {
+            commands.entity(message.target()).despawn(); 
+        }
     }
 }

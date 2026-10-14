@@ -1,11 +1,11 @@
 use avian2d::spatial_query::{SpatialQuery, SpatialQueryFilter};
 use bevy::{
     app::{AppExit, FixedUpdate, Plugin, Update}, color::palettes::css, ecs::{
-        component::Component, entity::Entity, hierarchy::ChildOf, message::{Message, MessageReader, MessageWriter}, relationship::RelatedSpawnerCommands, schedule::IntoScheduleConfigs, system::{Commands, EntityCommands, Query, Res}
-    }, gizmos::gizmos::Gizmos, math::{Dir2, Quat, Vec2, Vec3}, pbr::ViewFogUniformOffset, time::Time, transform::components::{GlobalTransform, Transform},
+        component::Component, entity::Entity, hierarchy::ChildOf, message::{Message, MessageReader, MessageWriter}, relationship::RelatedSpawnerCommands, schedule::IntoScheduleConfigs, system::{Commands, EntityCommands, Query}
+    }, gizmos::gizmos::Gizmos, math::{Dir2, Quat, Vec2, Vec3}, transform::components::{GlobalTransform, Transform},
 };
 use rand::RngExt;
-use crate::{player::health::DamageMessage, sfx::SpawnSfxExt};
+use crate::{LayerMasks, combat::health::DamageMessage, sfx::SpawnSfxExt};
 
 #[derive(Component)]
 struct FireInterval {
@@ -54,11 +54,11 @@ impl WeaponRecoil {
 }
 
 pub(crate) trait SpawnWeaponExt {
-    fn spawn_waepon(&mut self, offset: Vec2) -> EntityCommands;
+    fn spawn_weapon(&mut self, offset: Vec2) -> EntityCommands;
 }
 
 impl SpawnWeaponExt for RelatedSpawnerCommands<'_, ChildOf> {
-    fn spawn_waepon(&mut self, offset: Vec2) -> EntityCommands {
+    fn spawn_weapon(&mut self, offset: Vec2) -> EntityCommands {
         self.spawn((
             WeaponMuzzle(offset),
             FireInterval::new(8),
@@ -76,14 +76,15 @@ pub(super) struct WeaponPlugin;
 
 impl Plugin for WeaponPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_message::<FireWeaponMessage>()
+        app
+            .add_message::<FireWeaponMessage>()
             .add_systems(Update, draw_gizmos)
             .add_systems(FixedUpdate, (update_fire_intervals, recoil_wear_off, shoot_system).chain());
     }
 }
 
 fn update_fire_intervals(
-    mut query: Query<&mut FireInterval>
+    query: Query<&mut FireInterval>
 ) {
     for mut fire_interval in query {
         if fire_interval.accumulated < fire_interval.ticks {
@@ -127,7 +128,7 @@ fn shoot_system(
                         ray_dir,
                         2000.,
                         true,
-                        &SpatialQueryFilter::default(),
+                        &SpatialQueryFilter::from_mask([LayerMasks::Player])
                     ) {
                         damage_message_writer.write(DamageMessage::new(hit.entity, 25));
                         (ray_pos + (ray_dir * (hit.distance / 2.)), hit.distance)

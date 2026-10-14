@@ -1,14 +1,13 @@
-use avian2d::collision::collider::Collider;
+use avian2d::collision::collider::{Collider, CollisionLayers, LayerMask};
 
 use bevy::{
     app::{Plugin, Startup}, asset::{Assets, Handle}, color::Color, ecs::{
-        bundle::Bundle, component::Component, event::Trigger, hierarchy::ChildOf, lifecycle::Add, observer::On, relationship::RelatedSpawnerCommands, system::{Commands, ResMut},
+        bundle::Bundle, component::Component, entity::Entity, event::Trigger, hierarchy::ChildOf, lifecycle::Add, observer::On, relationship::RelatedSpawnerCommands, system::{Commands, ResMut},
     }, math::{Vec2, Vec3, primitives::Triangle2d}, mesh::{Mesh, Mesh2d}, sprite_render::{ColorMaterial, MeshMaterial2d}, transform::components::Transform,
 };
 
 use crate::{
-    player::{PlayerAssets, Rotate},
-    Team,
+    LayerMasks, Team, combat::health::DamageTargetReference, player::{PlayerAssets, Rotate},
 };
 
 const PLAYER_BODY_TIP: Vec2 = Vec2::new(0.5, 0.);
@@ -20,7 +19,7 @@ const PLAYER_BODY_BASE_BOTTOM: Vec2 = Vec2::new(-0.25, -0.4330127);
 pub(super) struct Body;
 
 impl Body {
-    fn bundle(mesh: Handle<Mesh>, color: Handle<ColorMaterial>) -> impl Bundle {
+    fn bundle(parent: Entity, mesh: Handle<Mesh>, color: Handle<ColorMaterial>) -> impl Bundle {
         (
             Body,
             Collider::triangle_unchecked(
@@ -28,6 +27,8 @@ impl Body {
                 PLAYER_BODY_BASE_TOP,
                 PLAYER_BODY_BASE_BOTTOM,
             ),
+            CollisionLayers::new(LayerMasks::Player, LayerMask::ALL),
+            DamageTargetReference::new(parent),
             Mesh2d(mesh),
             MeshMaterial2d(color),
             Transform::from_scale(Vec2::splat(32.).extend(1.))
@@ -37,12 +38,12 @@ impl Body {
 }
 
 pub(super) trait SpawnBodyExt {
-    fn spawn_body(&mut self, mesh: Handle<Mesh>, color: Handle<ColorMaterial>);
+    fn spawn_body(&mut self, parent: Entity, mesh: Handle<Mesh>, color: Handle<ColorMaterial>);
 }
 
 impl SpawnBodyExt for RelatedSpawnerCommands<'_, ChildOf> {
-    fn spawn_body(&mut self, mesh: Handle<Mesh>, color: Handle<ColorMaterial>) {
-        self.spawn(Body::bundle(mesh, color));
+    fn spawn_body(&mut self, parent: Entity, mesh: Handle<Mesh>, color: Handle<ColorMaterial>) {
+        self.spawn(Body::bundle(parent, mesh, color));
     }
 }
 

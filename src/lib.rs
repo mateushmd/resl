@@ -1,3 +1,4 @@
+use avian2d::prelude::PhysicsLayer;
 use bevy::{
     app::{Plugin, PreUpdate, Startup},
     asset::Assets,
@@ -19,14 +20,21 @@ use bevy::{
 };
 
 use crate::{
-    character_controller::CharacterControllerPlugin, input_system::{Controller, InputSystemPlugin}, player::PlayerPlugin, sfx::SfxPlugin, weapon::WeaponPlugin,
+    character_controller::CharacterControllerPlugin, combat::CombatPlugin, input_system::{Controller, InputSystemPlugin}, player::PlayerPlugin, sfx::SfxPlugin, 
 };
 
+mod combat;
 mod character_controller;
-mod weapon;
 mod input_system;
 mod player;
 mod sfx;
+
+#[derive(PhysicsLayer, Clone, Copy, Debug, Default)]
+enum LayerMasks {
+    #[default]
+    Default,
+    Player
+}
 
 #[derive(Clone, Component, Copy)]
 enum Team {
@@ -68,7 +76,7 @@ impl Plugin for RESLPlugin {
             // plugins
             .add_plugins((
                 CharacterControllerPlugin,
-                WeaponPlugin,
+                CombatPlugin,
                 InputSystemPlugin,
                 PlayerPlugin,
                 SfxPlugin
