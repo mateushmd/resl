@@ -134,7 +134,7 @@ fn process_shoot_intents(
         if intent.is_shooting {
             for &child in children {
                 if child_query.contains(child) {
-                    writer.write(FireWeaponMessage { weapon: child });
+                    writer.write(FireWeaponMessage::new(child));
                 }
             }
         }

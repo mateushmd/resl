@@ -1,4 +1,4 @@
-use avian2d::spatial_query::{SpatialQuery, SpatialQueryFilter};
+use avian2d::{dynamics::rigid_body::LinearVelocity, spatial_query::{SpatialQuery, SpatialQueryFilter}};
 use bevy::{
     app::{AppExit, FixedUpdate, Plugin, Update}, color::palettes::css, ecs::{
         component::Component, entity::Entity, hierarchy::ChildOf, message::{Message, MessageReader, MessageWriter}, relationship::RelatedSpawnerCommands, schedule::IntoScheduleConfigs, system::{Commands, EntityCommands, Query}
@@ -38,38 +38,50 @@ struct WeaponRecoil {
     recover: u32,
     accumulated: u32,
     max: u32,
-    spread_radians_per_unit: f32
+    spread_radians_per_unit: f32,
+    recovery_delay_ticks: u32,
+    ticks_since_shot: u32
 }
 
 impl WeaponRecoil {
-    fn new(gain: u32, recover: u32, max: u32, spread_radians_per_unit: f32) -> Self {
+    fn new(gain: u32, recover: u32, max: u32, spread_radians_per_unit: f32, recovery_delay_ticks: u32) -> Self {
         WeaponRecoil {
             gain,
             recover,
             accumulated: 0,
             max,
-            spread_radians_per_unit
+            spread_radians_per_unit,
+            recovery_delay_ticks,
+            ticks_since_shot: 0
         }
     }
 }
 
 pub(crate) trait SpawnWeaponExt {
-    fn spawn_weapon(&mut self, offset: Vec2) -> EntityCommands;
+    fn spawn_weapon(&mut self, offset: Vec2) -> EntityCommands<'_>;
 }
 
 impl SpawnWeaponExt for RelatedSpawnerCommands<'_, ChildOf> {
-    fn spawn_weapon(&mut self, offset: Vec2) -> EntityCommands {
+    fn spawn_weapon(&mut self, offset: Vec2) -> EntityCommands<'_> {
         self.spawn((
             WeaponMuzzle(offset),
             FireInterval::new(8),
-            WeaponRecoil::new(20, 1, 100, 0.0025)
+            WeaponRecoil::new(20, 5, 100, 0.0025, 10)
         ))
     }
 }
 
 #[derive(Message, Clone)]
 pub(crate) struct FireWeaponMessage {
-    pub weapon: Entity,
+    weapon: Entity,
+}
+
+impl FireWeaponMessage {
+    pub fn new(weapon: Entity) -> Self {
+        Self {
+            weapon
+        }
+    }
 }
 
 pub(super) struct WeaponPlugin;
@@ -96,13 +108,14 @@ fn update_fire_intervals(
 fn shoot_system(
     mut commands: Commands,
     mut fire_messages: MessageReader<FireWeaponMessage>,
-    mut query: Query<(&mut FireInterval, &GlobalTransform, &Transform, &WeaponMuzzle, &mut WeaponRecoil)>,
+    velocity_query: Query<&LinearVelocity>,
+    mut weapon_query: Query<(&mut FireInterval, &GlobalTransform, &Transform, &WeaponMuzzle, &mut WeaponRecoil, &ChildOf)>,
     spatial_query: SpatialQuery,
     mut app_exit_message_writter: MessageWriter<AppExit>,
     mut damage_message_writer: MessageWriter<DamageMessage>
 ) {
     for event in fire_messages.read() {
-        if let Ok((mut fire_interval, global_transform, transform, muzzle, mut recoil)) = query.get_mut(event.weapon) {
+        if let Ok((mut fire_interval, global_transform, transform, muzzle, mut recoil, parent)) = weapon_query.get_mut(event.weapon) {
             if fire_interval.accumulated >= fire_interval.ticks {
                 fire_interval.accumulated = 0;
 
@@ -113,7 +126,14 @@ fn shoot_system(
 
                 let ray_pos = (pos + rotated_offset).truncate();
                 
-                let current_spread = recoil.accumulated as f32 * recoil.spread_radians_per_unit;
+                let movement_penalty = if let Ok(velocity) = velocity_query.get(parent.parent()) {
+                    velocity.length() * 0.0005
+                } else {
+                    0.
+                };
+
+                let current_spread = 
+                    recoil.accumulated as f32 * recoil.spread_radians_per_unit + movement_penalty;
 
                 let mut rng = rand::rng();
                 let noise_angle = rng.random_range(-current_spread..=current_spread);
@@ -138,6 +158,7 @@ fn shoot_system(
 
                     commands.spawn_bullet_beam(midpoint, recoil_rotation, distance);
 
+                    recoil.ticks_since_shot = 0;
                     recoil.accumulated = (recoil.accumulated + recoil.gain).min(recoil.max);
                 }
             }
@@ -154,7 +175,11 @@ fn recoil_wear_off(
     query: Query<&mut WeaponRecoil>
 ) {
     for mut recoil in query {
-        recoil.accumulated = recoil.accumulated.saturating_sub(recoil.recover);
+        if recoil.ticks_since_shot >= recoil.recovery_delay_ticks {
+            recoil.accumulated = recoil.accumulated.saturating_sub(recoil.recover);
+        } else {
+            recoil.ticks_since_shot = recoil.ticks_since_shot.saturating_add(1);
+        }
     }
 }
 
