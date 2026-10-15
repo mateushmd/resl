@@ -26,12 +26,6 @@ impl FireInterval {
 #[require(Transform)]
 pub(crate) struct WeaponMuzzle(Vec2);
 
-impl WeaponMuzzle {
-    pub fn new(offset: Vec2) -> Self {
-        WeaponMuzzle(offset)
-    }
-}
-
 #[derive(Component)]
 struct WeaponRecoil {
     gain: u32,

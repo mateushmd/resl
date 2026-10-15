@@ -2,7 +2,7 @@ use avian2d::collision::collider::{Collider, CollisionLayers, LayerMask};
 
 use bevy::{
     app::{Plugin, Startup}, asset::{Assets, Handle}, color::Color, ecs::{
-        bundle::Bundle, component::Component, entity::Entity, event::Trigger, hierarchy::ChildOf, lifecycle::Add, observer::On, relationship::RelatedSpawnerCommands, system::{Commands, ResMut},
+        bundle::Bundle, component::Component, entity::Entity, hierarchy::ChildOf, relationship::RelatedSpawnerCommands, system::{Commands, ResMut},
     }, math::{Vec2, Vec3, primitives::Triangle2d}, mesh::{Mesh, Mesh2d}, sprite_render::{ColorMaterial, MeshMaterial2d}, transform::components::Transform,
 };
 

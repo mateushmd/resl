@@ -1,7 +1,6 @@
 use avian2d::prelude::PhysicsLayer;
 use bevy::{
     app::{Plugin, PreUpdate, Startup},
-    asset::Assets,
     camera::{Camera, Camera2d},
     color::Color,
     ecs::{
@@ -13,14 +12,12 @@ use bevy::{
     },
     input::InputSystems,
     math::Vec2,
-    mesh::Mesh,
-    sprite_render::ColorMaterial,
     transform::components::GlobalTransform,
     window::{PrimaryWindow, Window},
 };
 
 use crate::{
-    character_controller::CharacterControllerPlugin, combat::CombatPlugin, input_system::{Controller, InputSystemPlugin}, player::PlayerPlugin, sfx::SfxPlugin, 
+    character_controller::CharacterControllerPlugin, combat::CombatPlugin, input_system::InputSystemPlugin, player::PlayerPlugin, sfx::SfxPlugin, 
 };
 
 mod combat;
@@ -91,8 +88,6 @@ impl Plugin for RESLPlugin {
 
 fn setup(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut color_materials: ResMut<Assets<ColorMaterial>>,
 ) {
     commands.spawn(Camera2d);
 }

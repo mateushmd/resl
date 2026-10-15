@@ -1,7 +1,7 @@
 use avian2d::{collision::collider::Collider, dynamics::rigid_body::RigidBody};
 use bevy::{
     app::{FixedUpdate, Plugin, PostStartup}, asset::Handle, ecs::{
-        component::Component, entity, hierarchy::Children, message::{MessageReader, MessageWriter}, query::With, resource::Resource, system::{Commands, EntityCommands, Query, Res},
+        component::Component, hierarchy::Children, message::{MessageReader, MessageWriter}, query::With, resource::Resource, system::{Commands, EntityCommands, Query, Res},
     }, math::{Quat, Vec2}, mesh::Mesh, sprite_render::ColorMaterial, transform::components::Transform,
 };
 

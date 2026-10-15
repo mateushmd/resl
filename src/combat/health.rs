@@ -13,16 +13,16 @@ impl DamageTargetReference {
     }
 }
 
-impl Into<Entity> for DamageTargetReference {
-    fn into(self) -> Entity {
-        self.0
+impl From<DamageTargetReference> for Entity {
+    fn from(value: DamageTargetReference) -> Self {
+        value.0 
     }
 }
 
 #[derive(Message, Clone)]
 pub(crate) struct DamageMessage {
-    pub target: Entity,
-    pub amount: u32
+    target: Entity,
+    amount: u32
 }
 
 impl DamageMessage {
@@ -32,24 +32,12 @@ impl DamageMessage {
             amount
         }
     }
-
-    pub fn target(&self) -> Entity {
-        self.target
-    }
-    
-    pub fn amount(&self) -> u32 {
-        self.amount
-    }
 }
 
 #[derive(Message, Clone)]
 pub(crate) struct DeathMessage(Entity);
 
 impl DeathMessage {
-    pub fn new(target: Entity) -> Self {
-        Self(target)
-    }
-
     pub fn target(&self) -> Entity {
         self.0
     }
@@ -61,10 +49,6 @@ pub(crate) struct Health(u32);
 impl Health {
     pub fn new(amount: u32) -> Self {
         Health(amount) 
-    }
-
-    pub fn value(&self) -> u32 {
-        self.0
     }
 }
 
@@ -94,7 +78,7 @@ fn apply_damage_system(
             if let Ok(mut health) = health_query.get_mut(target) {
                 health.0 = health.0.saturating_sub(event.amount);
 
-                if health.0 <= 0 {
+                if health.0 == 0 {
                     message_writer.write(DeathMessage(target));
                 }
             }

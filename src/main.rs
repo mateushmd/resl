@@ -1,6 +1,6 @@
 use avian2d::{debug_render::PhysicsDebugPlugin, PhysicsPlugins};
 use bevy::{
-    app::{App, PluginGroup, PreUpdate, Startup},
+    app::{App, PluginGroup},
     utils::default,
     window::{Window, WindowPlugin},
     DefaultPlugins,
@@ -22,7 +22,7 @@ fn main() {
                 .build(),
         )
         // avian2d plugins
-        .add_plugins((PhysicsPlugins::default(), PhysicsDebugPlugin::default()))
+        .add_plugins((PhysicsPlugins::default(), PhysicsDebugPlugin))
         // RESL plugin
         .add_plugins(RESLPlugin)
         // custom plugins
