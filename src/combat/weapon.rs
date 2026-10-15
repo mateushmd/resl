@@ -1,23 +1,37 @@
-use avian2d::{dynamics::rigid_body::LinearVelocity, spatial_query::{SpatialQuery, SpatialQueryFilter}};
+use crate::{combat::health::DamageMessage, sfx::SpawnSfxExt, LayerMasks};
+use avian2d::{
+    dynamics::rigid_body::LinearVelocity,
+    spatial_query::{SpatialQuery, SpatialQueryFilter},
+};
 use bevy::{
-    app::{AppExit, FixedUpdate, Plugin, Update}, color::palettes::css, ecs::{
-        component::Component, entity::Entity, hierarchy::ChildOf, message::{Message, MessageReader, MessageWriter}, relationship::RelatedSpawnerCommands, schedule::IntoScheduleConfigs, system::{Commands, EntityCommands, Query}
-    }, gizmos::gizmos::Gizmos, math::{Dir2, Quat, Vec2, Vec3}, transform::components::{GlobalTransform, Transform},
+    app::{AppExit, FixedUpdate, Plugin, Update},
+    color::palettes::css,
+    ecs::{
+        component::Component,
+        entity::Entity,
+        hierarchy::ChildOf,
+        message::{Message, MessageReader, MessageWriter},
+        relationship::RelatedSpawnerCommands,
+        schedule::IntoScheduleConfigs,
+        system::{Commands, EntityCommands, Query},
+    },
+    gizmos::gizmos::Gizmos,
+    math::{Dir2, Quat, Vec2, Vec3},
+    transform::components::{GlobalTransform, Transform},
 };
 use rand::RngExt;
-use crate::{LayerMasks, combat::health::DamageMessage, sfx::SpawnSfxExt};
 
 #[derive(Component)]
 struct FireInterval {
     ticks: u32,
-    accumulated: u32
+    accumulated: u32,
 }
 
 impl FireInterval {
     fn new(ticks: u32) -> Self {
         FireInterval {
             ticks,
-            accumulated: 0
+            accumulated: 0,
         }
     }
 }
@@ -34,11 +48,17 @@ struct WeaponRecoil {
     max: u32,
     spread_radians_per_unit: f32,
     recovery_delay_ticks: u32,
-    ticks_since_shot: u32
+    ticks_since_shot: u32,
 }
 
 impl WeaponRecoil {
-    fn new(gain: u32, recover: u32, max: u32, spread_radians_per_unit: f32, recovery_delay_ticks: u32) -> Self {
+    fn new(
+        gain: u32,
+        recover: u32,
+        max: u32,
+        spread_radians_per_unit: f32,
+        recovery_delay_ticks: u32,
+    ) -> Self {
         WeaponRecoil {
             gain,
             recover,
@@ -46,7 +66,7 @@ impl WeaponRecoil {
             max,
             spread_radians_per_unit,
             recovery_delay_ticks,
-            ticks_since_shot: 0
+            ticks_since_shot: 0,
         }
     }
 }
@@ -60,7 +80,7 @@ impl SpawnWeaponExt for RelatedSpawnerCommands<'_, ChildOf> {
         self.spawn((
             WeaponMuzzle(offset),
             FireInterval::new(8),
-            WeaponRecoil::new(20, 5, 100, 0.0025, 10)
+            WeaponRecoil::new(20, 5, 100, 0.0025, 10),
         ))
     }
 }
@@ -72,9 +92,7 @@ pub(crate) struct FireWeaponMessage {
 
 impl FireWeaponMessage {
     pub fn new(weapon: Entity) -> Self {
-        Self {
-            weapon
-        }
+        Self { weapon }
     }
 }
 
@@ -82,16 +100,16 @@ pub(super) struct WeaponPlugin;
 
 impl Plugin for WeaponPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app
-            .add_message::<FireWeaponMessage>()
+        app.add_message::<FireWeaponMessage>()
             .add_systems(Update, draw_gizmos)
-            .add_systems(FixedUpdate, (update_fire_intervals, recoil_wear_off, shoot_system).chain());
+            .add_systems(
+                FixedUpdate,
+                (update_fire_intervals, recoil_wear_off, shoot_system).chain(),
+            );
     }
 }
 
-fn update_fire_intervals(
-    query: Query<&mut FireInterval>
-) {
+fn update_fire_intervals(query: Query<&mut FireInterval>) {
     for mut fire_interval in query {
         if fire_interval.accumulated < fire_interval.ticks {
             fire_interval.accumulated += 1;
@@ -103,13 +121,22 @@ fn shoot_system(
     mut commands: Commands,
     mut fire_messages: MessageReader<FireWeaponMessage>,
     velocity_query: Query<&LinearVelocity>,
-    mut weapon_query: Query<(&mut FireInterval, &GlobalTransform, &Transform, &WeaponMuzzle, &mut WeaponRecoil, &ChildOf)>,
+    mut weapon_query: Query<(
+        &mut FireInterval,
+        &GlobalTransform,
+        &Transform,
+        &WeaponMuzzle,
+        &mut WeaponRecoil,
+        &ChildOf,
+    )>,
     spatial_query: SpatialQuery,
     mut app_exit_message_writter: MessageWriter<AppExit>,
-    mut damage_message_writer: MessageWriter<DamageMessage>
+    mut damage_message_writer: MessageWriter<DamageMessage>,
 ) {
     for event in fire_messages.read() {
-        if let Ok((mut fire_interval, global_transform, transform, muzzle, mut recoil, parent)) = weapon_query.get_mut(event.weapon) {
+        if let Ok((mut fire_interval, global_transform, transform, muzzle, mut recoil, parent)) =
+            weapon_query.get_mut(event.weapon)
+        {
             if fire_interval.accumulated >= fire_interval.ticks {
                 fire_interval.accumulated = 0;
 
@@ -119,21 +146,21 @@ fn shoot_system(
                 let rotated_offset = rotation * muzzle.0.extend(0.);
 
                 let ray_pos = (pos + rotated_offset).truncate();
-                
+
                 let movement_penalty = if let Ok(velocity) = velocity_query.get(parent.parent()) {
                     velocity.length() * 0.0005
                 } else {
                     0.
                 };
 
-                let current_spread = 
+                let current_spread =
                     recoil.accumulated as f32 * recoil.spread_radians_per_unit + movement_penalty;
 
                 let mut rng = rand::rng();
                 let noise_angle = rng.random_range(-current_spread..=current_spread);
 
                 let recoil_rotation = rotation * Quat::from_rotation_z(noise_angle);
-                
+
                 let forward = (recoil_rotation * Vec3::X).truncate();
 
                 if let Ok(ray_dir) = Dir2::new(forward) {
@@ -142,7 +169,7 @@ fn shoot_system(
                         ray_dir,
                         2000.,
                         true,
-                        &SpatialQueryFilter::from_mask([LayerMasks::Player])
+                        &SpatialQueryFilter::from_mask([LayerMasks::Player]),
                     ) {
                         damage_message_writer.write(DamageMessage::new(hit.entity, 25));
                         (ray_pos + (ray_dir * (hit.distance / 2.)), hit.distance)
@@ -165,9 +192,7 @@ fn shoot_system(
     }
 }
 
-fn recoil_wear_off(
-    query: Query<&mut WeaponRecoil>
-) {
+fn recoil_wear_off(query: Query<&mut WeaponRecoil>) {
     for mut recoil in query {
         if recoil.ticks_since_shot >= recoil.recovery_delay_ticks {
             recoil.accumulated = recoil.accumulated.saturating_sub(recoil.recover);

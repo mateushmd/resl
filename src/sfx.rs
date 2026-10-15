@@ -1,4 +1,16 @@
-use bevy::{app::{Plugin, Update}, color::{Alpha, palettes::css}, ecs::{component::Component, entity::Entity, system::{Commands, Query, Res}}, math::{Quat, Vec2}, sprite::Sprite, time::{Time, Timer, TimerMode}, transform::components::Transform};
+use bevy::{
+    app::{Plugin, Update},
+    color::{palettes::css, Alpha},
+    ecs::{
+        component::Component,
+        entity::Entity,
+        system::{Commands, Query, Res},
+    },
+    math::{Quat, Vec2},
+    sprite::Sprite,
+    time::{Time, Timer, TimerMode},
+    transform::components::Transform,
+};
 
 pub(super) struct SfxPlugin;
 
@@ -21,21 +33,20 @@ impl SpawnSfxExt for Commands<'_, '_> {
                 custom_size: Some(Vec2::new(distance, 4.)),
                 ..Default::default()
             },
-            Transform::from_translation(position.extend(0.5))
-                .with_rotation(rotation)
+            Transform::from_translation(position.extend(0.5)).with_rotation(rotation),
         ));
     }
 }
 
 #[derive(Component)]
 struct BulletBeam {
-    timer: Timer
+    timer: Timer,
 }
 
 impl BulletBeam {
     pub fn new(duration: f32) -> Self {
         Self {
-            timer: Timer::from_seconds(duration, TimerMode::Once)
+            timer: Timer::from_seconds(duration, TimerMode::Once),
         }
     }
 }
@@ -43,7 +54,7 @@ impl BulletBeam {
 fn animate_bullet_beam(
     mut commands: Commands,
     time: Res<Time>,
-    mut query: Query<(Entity, &mut BulletBeam, &mut Sprite)>
+    mut query: Query<(Entity, &mut BulletBeam, &mut Sprite)>,
 ) {
     for (entity, mut beam, mut sprite) in &mut query {
         beam.timer.tick(time.delta());

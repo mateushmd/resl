@@ -1,13 +1,27 @@
 use avian2d::collision::collider::{Collider, CollisionLayers, LayerMask};
 
 use bevy::{
-    app::{Plugin, Startup}, asset::{Assets, Handle}, color::Color, ecs::{
-        bundle::Bundle, component::Component, entity::Entity, hierarchy::ChildOf, relationship::RelatedSpawnerCommands, system::{Commands, ResMut},
-    }, math::{Vec2, Vec3, primitives::Triangle2d}, mesh::{Mesh, Mesh2d}, sprite_render::{ColorMaterial, MeshMaterial2d}, transform::components::Transform,
+    app::{Plugin, Startup},
+    asset::{Assets, Handle},
+    color::Color,
+    ecs::{
+        bundle::Bundle,
+        component::Component,
+        entity::Entity,
+        hierarchy::ChildOf,
+        relationship::RelatedSpawnerCommands,
+        system::{Commands, ResMut},
+    },
+    math::{primitives::Triangle2d, Vec2, Vec3},
+    mesh::{Mesh, Mesh2d},
+    sprite_render::{ColorMaterial, MeshMaterial2d},
+    transform::components::Transform,
 };
 
 use crate::{
-    LayerMasks, Team, combat::health::DamageTargetReference, player::{PlayerAssets, Rotate},
+    combat::health::DamageTargetReference,
+    player::{PlayerAssets, Rotate},
+    LayerMasks, Team,
 };
 
 const PLAYER_BODY_TIP: Vec2 = Vec2::new(0.5, 0.);

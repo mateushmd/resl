@@ -17,11 +17,12 @@ use bevy::{
 };
 
 use crate::{
-    character_controller::CharacterControllerPlugin, combat::CombatPlugin, input_system::InputSystemPlugin, player::PlayerPlugin, sfx::SfxPlugin, 
+    character_controller::CharacterControllerPlugin, combat::CombatPlugin,
+    input_system::InputSystemPlugin, player::PlayerPlugin, sfx::SfxPlugin,
 };
 
-mod combat;
 mod character_controller;
+mod combat;
 mod input_system;
 mod player;
 mod sfx;
@@ -30,7 +31,7 @@ mod sfx;
 enum LayerMasks {
     #[default]
     Default,
-    Player
+    Player,
 }
 
 #[derive(Clone, Component, Copy)]
@@ -76,7 +77,7 @@ impl Plugin for RESLPlugin {
                 CombatPlugin,
                 InputSystemPlugin,
                 PlayerPlugin,
-                SfxPlugin
+                SfxPlugin,
             ))
             // systems
             .add_systems(Startup, setup)
@@ -86,8 +87,6 @@ impl Plugin for RESLPlugin {
     }
 }
 
-fn setup(
-    mut commands: Commands,
-) {
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2d);
 }

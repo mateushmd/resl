@@ -1,12 +1,30 @@
 use avian2d::{collision::collider::Collider, dynamics::rigid_body::RigidBody};
 use bevy::{
-    app::{FixedUpdate, Plugin, PostStartup}, asset::Handle, ecs::{
-        component::Component, hierarchy::Children, message::{MessageReader, MessageWriter}, query::With, resource::Resource, system::{Commands, EntityCommands, Query, Res},
-    }, math::{Quat, Vec2}, mesh::Mesh, sprite_render::ColorMaterial, transform::components::Transform,
+    app::{FixedUpdate, Plugin, PostStartup},
+    asset::Handle,
+    ecs::{
+        component::Component,
+        hierarchy::Children,
+        message::{MessageReader, MessageWriter},
+        query::With,
+        resource::Resource,
+        system::{Commands, EntityCommands, Query, Res},
+    },
+    math::{Quat, Vec2},
+    mesh::Mesh,
+    sprite_render::ColorMaterial,
+    transform::components::Transform,
 };
 
 use crate::{
-    Team, character_controller::CharacterController, combat::{health::{DeathMessage, Health}, weapon::{FireWeaponMessage, SpawnWeaponExt, WeaponMuzzle}}, input_system::{AiControlled, CharacterIntent, Controller, HumanControlled}, player::body::{BodyPlugin, SpawnBodyExt}
+    character_controller::CharacterController,
+    combat::{
+        health::{DeathMessage, Health},
+        weapon::{FireWeaponMessage, SpawnWeaponExt, WeaponMuzzle},
+    },
+    input_system::{AiControlled, CharacterIntent, Controller, HumanControlled},
+    player::body::{BodyPlugin, SpawnBodyExt},
+    Team,
 };
 
 mod body;
@@ -93,10 +111,16 @@ pub(super) struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app
-            .add_plugins(BodyPlugin)
+        app.add_plugins(BodyPlugin)
             .add_systems(PostStartup, setup)
-            .add_systems(FixedUpdate, (children_rotation, process_shoot_intents, process_death_messages));
+            .add_systems(
+                FixedUpdate,
+                (
+                    children_rotation,
+                    process_shoot_intents,
+                    process_death_messages,
+                ),
+            );
     }
 }
 
@@ -144,12 +168,12 @@ fn process_shoot_intents(
 fn process_death_messages(
     mut commands: Commands,
     query: Query<&Player>,
-    mut message_reader: MessageReader<DeathMessage>
+    mut message_reader: MessageReader<DeathMessage>,
 ) {
     for message in message_reader.read() {
         println!("{}", query.contains(message.target()));
         if query.contains(message.target()) {
-            commands.entity(message.target()).despawn(); 
+            commands.entity(message.target()).despawn();
         }
     }
 }
