@@ -9,10 +9,10 @@ use bevy::{
     },
 };
 
-pub(crate) const MAX_HEALTH: u32 = 100;
+pub const MAX_HEALTH: u32 = 100;
 
 #[derive(Component, Debug)]
-pub(crate) struct DamageTargetReference(Entity);
+pub struct DamageTargetReference(Entity);
 
 impl DamageTargetReference {
     pub fn new(target: Entity) -> Self {
@@ -31,7 +31,7 @@ impl From<DamageTargetReference> for Entity {
 }
 
 #[derive(Message, Clone)]
-pub(crate) struct DamageMessage {
+pub struct DamageMessage {
     target: Entity,
     amount: u32,
 }
@@ -43,7 +43,7 @@ impl DamageMessage {
 }
 
 #[derive(Message, Clone)]
-pub(crate) struct DeathMessage(Entity);
+pub struct DeathMessage(Entity);
 
 impl DeathMessage {
     pub fn target(&self) -> Entity {
@@ -52,7 +52,7 @@ impl DeathMessage {
 }
 
 #[derive(Component)]
-pub(crate) struct Health(u32);
+pub struct Health(u32);
 
 impl Health {
     pub fn new() -> Self {
@@ -65,7 +65,7 @@ impl Health {
 }
 
 #[derive(Component)]
-pub(crate) struct Invencibility;
+pub struct Invencibility;
 
 pub(super) struct HealthPlugin;
 

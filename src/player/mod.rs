@@ -27,7 +27,7 @@ use crate::{
     Team,
 };
 
-pub(crate) mod body;
+pub mod body;
 
 #[derive(Resource, Clone)]
 struct PlayerAssets {
@@ -42,7 +42,7 @@ struct Rotate;
 
 #[derive(Component)]
 #[require(Transform)]
-pub(crate) struct Player(Team);
+pub struct Player(Team);
 
 impl Player {
     fn spawn_base<'a>(

@@ -38,10 +38,10 @@ impl FireInterval {
 
 #[derive(Component)]
 #[require(Transform)]
-pub(crate) struct WeaponMuzzle(Vec2);
+pub struct WeaponMuzzle(Vec2);
 
 #[derive(Component)]
-pub(crate) struct WeaponRecoil {
+pub struct WeaponRecoil {
     gain: u32,
     recover: u32,
     accumulated: u32,
@@ -79,7 +79,7 @@ impl WeaponRecoil {
     }
 }
 
-pub(crate) trait SpawnWeaponExt {
+pub trait SpawnWeaponExt {
     fn spawn_weapon(&mut self, offset: Vec2) -> EntityCommands<'_>;
 }
 
@@ -94,7 +94,7 @@ impl SpawnWeaponExt for RelatedSpawnerCommands<'_, ChildOf> {
 }
 
 #[derive(Message, Clone)]
-pub(crate) struct FireWeaponMessage {
+pub struct FireWeaponMessage {
     weapon: Entity,
 }
 

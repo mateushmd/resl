@@ -17,8 +17,7 @@ use bevy::{
 };
 
 use crate::{
-    character_controller::CharacterControllerPlugin, combat::CombatPlugin,
-    input_system::InputSystemPlugin, player::PlayerPlugin, sfx::SfxPlugin,
+    ai::AiPlugin, character_controller::CharacterControllerPlugin, combat::CombatPlugin, input_system::InputSystemPlugin, player::PlayerPlugin, sfx::SfxPlugin,
 };
 
 mod ai;
@@ -82,6 +81,7 @@ impl Plugin for RESLPlugin {
         app
             // plugins
             .add_plugins((
+                AiPlugin,
                 CharacterControllerPlugin,
                 CombatPlugin,
                 InputSystemPlugin,

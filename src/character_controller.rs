@@ -10,7 +10,7 @@ use bevy::{
 
 use crate::input_system::CharacterIntent;
 
-pub(crate) const MAX_VELOCITY: f32 = 150.;
+pub const MAX_VELOCITY: f32 = 150.;
 
 #[derive(Component, Default)]
 #[require(CharacterIntent, Collider, RigidBody, Transform)]

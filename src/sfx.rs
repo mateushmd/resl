@@ -20,7 +20,7 @@ impl Plugin for SfxPlugin {
     }
 }
 
-pub(crate) trait SpawnSfxExt {
+pub trait SpawnSfxExt {
     fn spawn_bullet_beam(&mut self, position: Vec2, rotation: Quat, distance: f32);
 }
 

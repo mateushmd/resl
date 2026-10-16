@@ -24,9 +24,9 @@ use crate::{
     LayerMasks, Team,
 };
 
-pub(crate) const PLAYER_BODY_TIP: Vec2 = Vec2::new(0.5, 0.);
-pub(crate) const PLAYER_BODY_BASE_TOP: Vec2 = Vec2::new(-0.25, 0.4330127);
-pub(crate) const PLAYER_BODY_BASE_BOTTOM: Vec2 = Vec2::new(-0.25, -0.4330127);
+pub const PLAYER_BODY_TIP: Vec2 = Vec2::new(0.5, 0.);
+pub const PLAYER_BODY_BASE_TOP: Vec2 = Vec2::new(-0.25, 0.4330127);
+pub const PLAYER_BODY_BASE_BOTTOM: Vec2 = Vec2::new(-0.25, -0.4330127);
 
 #[derive(Component)]
 #[require(Collider, MeshMaterial2d<ColorMaterial>, Mesh2d, Rotate, Transform)]

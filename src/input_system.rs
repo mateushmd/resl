@@ -16,16 +16,16 @@ struct AiActionBuffer {
     pub latest_action: [f32; 4]
 }
 
-pub(crate) enum Controller {
+pub enum Controller {
     Ai(usize),
     Human,
 }
 
 #[derive(Component, Default)]
-pub(crate) struct HumanControlled;
+pub struct HumanControlled;
 
 #[derive(Component, Default)]
-pub(crate) struct AiControlled(usize);
+pub struct AiControlled(usize);
 
 impl AiControlled {
     pub fn new(id: usize) -> Self {
@@ -38,7 +38,7 @@ impl AiControlled {
 }
 
 #[derive(Component, Default)]
-pub(crate) struct CharacterIntent {
+pub struct CharacterIntent {
     pub move_direction: Vec2,
     pub look_angle: f32,
     pub is_shooting: bool,

@@ -2,8 +2,8 @@ use bevy::app::Plugin;
 
 use crate::combat::{health::HealthPlugin, weapon::WeaponPlugin};
 
-pub(crate) mod health;
-pub(crate) mod weapon;
+pub mod health;
+pub mod weapon;
 
 pub(super) struct CombatPlugin;
 
