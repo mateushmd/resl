@@ -9,6 +9,8 @@ use bevy::{
     },
 };
 
+pub(crate) const MAX_HEALTH: u32 = 100;
+
 #[derive(Component, Debug)]
 pub(crate) struct DamageTargetReference(Entity);
 
@@ -53,8 +55,12 @@ impl DeathMessage {
 pub(crate) struct Health(u32);
 
 impl Health {
-    pub fn new(amount: u32) -> Self {
-        Health(amount)
+    pub fn new() -> Self {
+        Health(MAX_HEALTH)
+    }
+
+    pub fn current(&self) -> u32 {
+        self.0
     }
 }
 

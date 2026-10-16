@@ -41,7 +41,7 @@ impl FireInterval {
 pub(crate) struct WeaponMuzzle(Vec2);
 
 #[derive(Component)]
-struct WeaponRecoil {
+pub(crate) struct WeaponRecoil {
     gain: u32,
     recover: u32,
     accumulated: u32,
@@ -68,6 +68,14 @@ impl WeaponRecoil {
             recovery_delay_ticks,
             ticks_since_shot: 0,
         }
+    }
+
+    pub fn accumulated(&self) -> u32 {
+        self.accumulated
+    }
+
+    pub fn max(&self) -> u32 {
+        self.max
     }
 }
 

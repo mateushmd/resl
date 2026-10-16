@@ -21,6 +21,7 @@ use crate::{
     input_system::InputSystemPlugin, player::PlayerPlugin, sfx::SfxPlugin,
 };
 
+mod ai;
 mod character_controller;
 mod combat;
 mod input_system;
@@ -34,10 +35,11 @@ enum LayerMasks {
     Player,
 }
 
-#[derive(Clone, Component, Copy)]
+#[derive(Clone, Component, Copy, PartialEq)]
+#[repr(u8)]
 enum Team {
     Attackers,
-    Defenders,
+    Defenders
 }
 
 impl Team {
@@ -45,6 +47,13 @@ impl Team {
         match self {
             Self::Attackers => Color::srgba(1., 0., 0., 1.),
             Self::Defenders => Color::srgba(0., 0., 1., 1.),
+        }
+    }
+
+    pub fn get_opposite(&self) -> Self {
+        match self {
+            Self::Attackers => Self::Defenders,
+            Self::Defenders => Self::Attackers
         }
     }
 }

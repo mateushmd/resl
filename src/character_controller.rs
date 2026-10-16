@@ -10,6 +10,8 @@ use bevy::{
 
 use crate::input_system::CharacterIntent;
 
+pub(crate) const MAX_VELOCITY: f32 = 150.;
+
 #[derive(Component, Default)]
 #[require(CharacterIntent, Collider, RigidBody, Transform)]
 pub struct CharacterController;
@@ -26,5 +28,5 @@ fn character_controller(
     query: Single<(&CharacterIntent, &mut LinearVelocity), With<CharacterController>>,
 ) {
     let (intent, mut player_velocity) = query.into_inner();
-    player_velocity.0 = intent.move_direction * 150.;
+    player_velocity.0 = intent.move_direction * MAX_VELOCITY;
 }

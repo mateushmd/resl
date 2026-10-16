@@ -27,7 +27,7 @@ use crate::{
     Team,
 };
 
-mod body;
+pub(crate) mod body;
 
 #[derive(Resource, Clone)]
 struct PlayerAssets {
@@ -42,19 +42,19 @@ struct Rotate;
 
 #[derive(Component)]
 #[require(Transform)]
-struct Player(Option<Team>);
+pub(crate) struct Player(Team);
 
 impl Player {
     fn spawn_base<'a>(
         commands: &'a mut Commands,
         player_assets: &PlayerAssets,
         position: Vec2,
-        team: Option<Team>,
+        team: Team,
     ) -> EntityCommands<'a> {
         let mut entity_cmds = commands.spawn((
             RigidBody::Kinematic,
             Collider::circle(16.),
-            Health::new(100),
+            Health::new(),
             Player(team),
             Transform::from_translation(position.extend(1.)),
         ));
@@ -66,9 +66,8 @@ impl Player {
                 id,
                 player_assets.body_mesh.clone(),
                 match team {
-                    Some(Team::Attackers) => player_assets.attacker_color.clone(),
-                    Some(Team::Defenders) => player_assets.defender_color.clone(),
-                    None => player_assets.dummy_color.clone(),
+                    Team::Attackers => player_assets.attacker_color.clone(),
+                    Team::Defenders => player_assets.defender_color.clone()
                 },
             );
         });
@@ -83,7 +82,7 @@ impl Player {
         position: Vec2,
         team: Team,
     ) {
-        let mut entity_cmds = Self::spawn_base(commands, player_assets, position, Some(team));
+        let mut entity_cmds = Self::spawn_base(commands, player_assets, position, team);
 
         entity_cmds.insert(CharacterController);
 
@@ -101,9 +100,13 @@ impl Player {
         commands: &mut Commands,
         player_assets: &PlayerAssets,
         position: Vec2,
-        team: Option<Team>,
+        team: Team,
     ) {
         Self::spawn_base(commands, player_assets, position, team);
+    }
+
+    pub fn team(&self) -> Team {
+        self.0
     }
 }
 
@@ -133,7 +136,7 @@ fn setup(mut commands: Commands, player_assets: Res<PlayerAssets>) {
         Team::Attackers,
     );
 
-    Player::spawn_dummy(&mut commands, &player_assets, Vec2::new(100., 0.), None);
+    Player::spawn_dummy(&mut commands, &player_assets, Vec2::new(100., 0.), Team::Defenders);
 }
 
 fn children_rotation(
