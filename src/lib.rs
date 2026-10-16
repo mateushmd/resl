@@ -10,7 +10,6 @@ use bevy::{
         schedule::IntoScheduleConfigs,
         system::{Commands, ResMut, Single},
     },
-    input::InputSystems,
     math::Vec2,
     transform::components::GlobalTransform,
     window::{PrimaryWindow, Window},
@@ -90,7 +89,7 @@ impl Plugin for RESLPlugin {
             ))
             // systems
             .add_systems(Startup, setup)
-            .add_systems(PreUpdate, update_mouse_world_position.after(InputSystems))
+            .add_systems(PreUpdate, update_mouse_world_position.after(bevy::input::InputSystems))
             // resources
             .init_resource::<MouseWorldPosition>();
     }

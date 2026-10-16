@@ -3,9 +3,7 @@ use avian2d::{
     dynamics::rigid_body::{LinearVelocity, RigidBody},
 };
 use bevy::{
-    app::{FixedUpdate, Plugin},
-    ecs::{component::Component, query::With, system::Single},
-    transform::components::Transform,
+    app::{FixedUpdate, Plugin}, ecs::{component::Component, query::With, schedule::IntoScheduleConfigs, system::Single}, transform::components::Transform,
 };
 
 use crate::input_system::CharacterIntent;
@@ -20,7 +18,7 @@ pub struct CharacterControllerPlugin;
 
 impl Plugin for CharacterControllerPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_systems(FixedUpdate, character_controller);
+        app.add_systems(FixedUpdate, character_controller.after(crate::input_system::InputSystems));
     }
 }
 

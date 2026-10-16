@@ -1,9 +1,6 @@
 use bevy::{
     app::{Plugin, Update}, ecs::{
-        component::Component,
-        query::With,
-        resource::Resource,
-        system::{Query, Res, Single},
+        component::Component, query::With, resource::Resource, schedule::{IntoScheduleConfigs, SystemSet}, system::{Query, Res, Single},
     }, input::{ButtonInput, keyboard::KeyCode, mouse::MouseButton}, math::{EulerRot, Vec2}, transform::components::Transform,
 };
 
@@ -44,11 +41,14 @@ pub struct CharacterIntent {
     pub is_shooting: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, SystemSet)]
+pub struct InputSystems;
+
 pub(super) struct InputSystemPlugin;
 
 impl Plugin for InputSystemPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_systems(Update, (human_input_system, ai_input_system));
+        app.add_systems(Update, (human_input_system, ai_input_system).in_set(InputSystems));
     }
 }
 

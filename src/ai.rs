@@ -30,7 +30,7 @@ impl Plugin for AiPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_systems(
             FixedUpdate, 
-            (gather_observation_system).run_if(on_timer(Duration::from_secs_f32(1. / 16.)))
+            (gather_observation_system).before(crate::input_system::InputSystems).run_if(on_timer(Duration::from_secs_f32(1. / 16.)))
         );
     }
 }

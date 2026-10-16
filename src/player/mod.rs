@@ -1,19 +1,8 @@
 use avian2d::{collision::collider::Collider, dynamics::rigid_body::RigidBody};
 use bevy::{
-    app::{FixedUpdate, Plugin, PostStartup},
-    asset::Handle,
-    ecs::{
-        component::Component,
-        hierarchy::Children,
-        message::{MessageReader, MessageWriter},
-        query::With,
-        resource::Resource,
-        system::{Commands, EntityCommands, Query, Res},
-    },
-    math::{Quat, Vec2},
-    mesh::Mesh,
-    sprite_render::ColorMaterial,
-    transform::components::Transform,
+    app::{FixedUpdate, Plugin, PostStartup}, asset::Handle, ecs::{
+        component::Component, hierarchy::Children, message::{MessageReader, MessageWriter}, query::With, resource::Resource, schedule::IntoScheduleConfigs, system::{Commands, EntityCommands, Query, Res},
+    }, math::{Quat, Vec2}, mesh::Mesh, sprite_render::ColorMaterial, transform::components::Transform,
 };
 
 use crate::{
@@ -119,7 +108,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 FixedUpdate,
                 (
-                    children_rotation,
+                    children_rotation.after(crate::input_system::InputSystems),
                     process_shoot_intents,
                     process_death_messages,
                 ),
