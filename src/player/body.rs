@@ -24,13 +24,23 @@ use crate::{
     LayerMasks, Team,
 };
 
+const BASE_SCALE: f32 = 32.;
+
 pub const PLAYER_BODY_TIP: Vec2 = Vec2::new(0.5, 0.);
 pub const PLAYER_BODY_BASE_TOP: Vec2 = Vec2::new(-0.25, 0.4330127);
 pub const PLAYER_BODY_BASE_BOTTOM: Vec2 = Vec2::new(-0.25, -0.4330127);
 
+const fn scale_vec2(v: Vec2, scale: f32) -> Vec2 {
+    Vec2::new(v.x * scale, v.y * scale)
+}
+
+pub const PLAYER_BODY_TIP_SCALED: Vec2 = scale_vec2(PLAYER_BODY_TIP, BASE_SCALE);
+pub const PLAYER_BODY_BASE_TOP_SCALED: Vec2 = scale_vec2(PLAYER_BODY_BASE_TOP, BASE_SCALE);
+pub const PLAYER_BODY_BASE_BOTTOM_SCALED: Vec2 = scale_vec2(PLAYER_BODY_BASE_BOTTOM, BASE_SCALE);
+
 #[derive(Component)]
 #[require(Collider, MeshMaterial2d<ColorMaterial>, Mesh2d, Rotate, Transform)]
-pub(super) struct Body;
+pub struct Body;
 
 impl Body {
     fn bundle(parent: Entity, mesh: Handle<Mesh>, color: Handle<ColorMaterial>) -> impl Bundle {
@@ -45,7 +55,7 @@ impl Body {
             DamageTargetReference::new(parent),
             Mesh2d(mesh),
             MeshMaterial2d(color),
-            Transform::from_scale(Vec2::splat(32.).extend(1.))
+            Transform::from_scale(Vec2::splat(BASE_SCALE).extend(1.))
                 .with_translation(Vec3::new(0., 0., 0.1)),
         )
     }

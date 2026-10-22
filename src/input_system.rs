@@ -1,6 +1,6 @@
 use bevy::{
     app::{Plugin, Update}, ecs::{
-        component::Component, query::With, resource::Resource, schedule::{IntoScheduleConfigs, SystemSet}, system::{Query, Res, Single},
+        component::Component, query::With, resource::Resource, schedule::{IntoScheduleConfigs, SystemSet}, system::{Query, Res, Single, command::init_resource},
     }, input::{ButtonInput, keyboard::KeyCode, mouse::MouseButton}, math::{EulerRot, Vec2}, transform::components::Transform,
 };
 
@@ -48,7 +48,9 @@ pub(super) struct InputSystemPlugin;
 
 impl Plugin for InputSystemPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_systems(Update, (human_input_system, ai_input_system).in_set(InputSystems));
+        app
+            .add_systems(Update, (human_input_system, ai_input_system).in_set(InputSystems))
+            .init_resource::<AiActionBuffer>();
     }
 }
 

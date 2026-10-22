@@ -1,7 +1,7 @@
 use avian2d::{collision::collider::Collider, dynamics::rigid_body::RigidBody};
 use bevy::{
     app::{FixedUpdate, Plugin, PostStartup}, asset::Handle, ecs::{
-        component::Component, hierarchy::Children, message::{MessageReader, MessageWriter}, query::With, resource::Resource, schedule::IntoScheduleConfigs, system::{Commands, EntityCommands, Query, Res},
+        component::Component, entity, hierarchy::Children, message::{MessageReader, MessageWriter}, query::With, resource::Resource, schedule::IntoScheduleConfigs, system::{Commands, EntityCommands, Query, Res},
     }, math::{Quat, Vec2}, mesh::Mesh, sprite_render::ColorMaterial, transform::components::Transform,
 };
 
@@ -19,7 +19,7 @@ use crate::{
 pub mod body;
 
 #[derive(Resource, Clone)]
-struct PlayerAssets {
+pub(super) struct PlayerAssets {
     pub body_mesh: Handle<Mesh>,
     pub attacker_color: Handle<ColorMaterial>,
     pub defender_color: Handle<ColorMaterial>,
@@ -64,13 +64,13 @@ impl Player {
         entity_cmds
     }
 
-    fn spawn_player(
-        commands: &mut Commands,
+    pub(super) fn spawn_player<'a>(
+        commands: &'a mut Commands,
         player_assets: &PlayerAssets,
         controller: Controller,
         position: Vec2,
         team: Team,
-    ) {
+    ) -> EntityCommands<'a> {
         let mut entity_cmds = Self::spawn_base(commands, player_assets, position, team);
 
         entity_cmds.insert(CharacterController);
@@ -83,15 +83,17 @@ impl Player {
             Controller::Ai(id) => entity_cmds.insert(AiControlled::new(id)),
             Controller::Human => entity_cmds.insert(HumanControlled),
         };
+
+        entity_cmds
     }
 
-    fn spawn_dummy(
-        commands: &mut Commands,
+    pub(super) fn spawn_dummy<'a>(
+        commands: &'a mut Commands,
         player_assets: &PlayerAssets,
         position: Vec2,
         team: Team,
-    ) {
-        Self::spawn_base(commands, player_assets, position, team);
+    ) -> EntityCommands<'a> {
+        Self::spawn_base(commands, player_assets, position, team)
     }
 
     pub fn team(&self) -> Team {
@@ -103,7 +105,8 @@ pub(super) struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_plugins(BodyPlugin)
+        app
+            .add_plugins(BodyPlugin)
             .add_systems(PostStartup, setup)
             .add_systems(
                 FixedUpdate,
@@ -117,15 +120,6 @@ impl Plugin for PlayerPlugin {
 }
 
 fn setup(mut commands: Commands, player_assets: Res<PlayerAssets>) {
-    Player::spawn_player(
-        &mut commands,
-        &player_assets,
-        Controller::Human,
-        Vec2::ZERO,
-        Team::Attackers,
-    );
-
-    Player::spawn_dummy(&mut commands, &player_assets, Vec2::new(100., 0.), Team::Defenders);
 }
 
 fn children_rotation(

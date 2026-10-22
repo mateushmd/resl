@@ -1,22 +1,12 @@
 use avian2d::prelude::PhysicsLayer;
 use bevy::{
-    app::{Plugin, PreUpdate, Startup},
-    camera::{Camera, Camera2d},
-    color::Color,
-    ecs::{
-        component::Component,
-        query::With,
-        resource::Resource,
-        schedule::IntoScheduleConfigs,
-        system::{Commands, ResMut, Single},
-    },
-    math::Vec2,
-    transform::components::GlobalTransform,
-    window::{PrimaryWindow, Window},
+    app::{Plugin, PreUpdate, PostStartup}, camera::{Camera, Camera2d}, color::Color, ecs::{
+        component::Component, query::With, resource::Resource, schedule::IntoScheduleConfigs, system::{Commands, Res, ResMut, Single},
+    }, math::Vec2, transform::components::GlobalTransform, window::{PrimaryWindow, Window},
 };
 
 use crate::{
-    ai::AiPlugin, character_controller::CharacterControllerPlugin, combat::CombatPlugin, input_system::InputSystemPlugin, player::PlayerPlugin, sfx::SfxPlugin,
+    ai::AiPlugin, character_controller::CharacterControllerPlugin, combat::CombatPlugin, input_system::{Controller, InputSystemPlugin}, player::{Player, PlayerAssets, PlayerPlugin}, sfx::SfxPlugin,
 };
 
 mod ai;
@@ -88,13 +78,30 @@ impl Plugin for RESLPlugin {
                 SfxPlugin,
             ))
             // systems
-            .add_systems(Startup, setup)
+            .add_systems(PostStartup, setup)
             .add_systems(PreUpdate, update_mouse_world_position.after(bevy::input::InputSystems))
             // resources
             .init_resource::<MouseWorldPosition>();
     }
 }
 
-fn setup(mut commands: Commands) {
+fn setup(
+    mut commands: Commands,
+    player_assets: Res<PlayerAssets>
+) {
     commands.spawn(Camera2d);
+
+    Player::spawn_player(
+        &mut commands,
+        &player_assets,
+        Controller::Human,
+        Vec2::ZERO,
+        Team::Attackers,
+    ).insert(crate::ai::GizmosTarget);
+
+    Player::spawn_dummy(&mut commands, &player_assets, Vec2::new(100., 0.), Team::Defenders);
+    Player::spawn_dummy(&mut commands, &player_assets, Vec2::new(150., 0.), Team::Defenders);
+    Player::spawn_dummy(&mut commands, &player_assets, Vec2::new(200., 0.), Team::Defenders);
+    Player::spawn_dummy(&mut commands, &player_assets, Vec2::new(250., 0.), Team::Defenders);
+    Player::spawn_dummy(&mut commands, &player_assets, Vec2::new(300., 0.), Team::Defenders);
 }
