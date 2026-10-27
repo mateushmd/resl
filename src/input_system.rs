@@ -1,7 +1,15 @@
 use bevy::{
-    app::{Plugin, Update}, ecs::{
-        component::Component, query::With, resource::Resource, schedule::{IntoScheduleConfigs, SystemSet}, system::{Query, Res, Single, command::init_resource},
-    }, input::{ButtonInput, keyboard::KeyCode, mouse::MouseButton}, math::{EulerRot, Vec2}, transform::components::Transform,
+    app::{Plugin, Update},
+    ecs::{
+        component::Component,
+        query::With,
+        resource::Resource,
+        schedule::{IntoScheduleConfigs, SystemSet},
+        system::{command::init_resource, Query, Res, Single},
+    },
+    input::{keyboard::KeyCode, mouse::MouseButton, ButtonInput},
+    math::{EulerRot, Vec2},
+    transform::components::Transform,
 };
 
 use crate::MouseWorldPosition;
@@ -10,7 +18,7 @@ const AI_MAX_TURN_RADIANS_PER_TICK: f32 = 0.15;
 
 #[derive(Resource, Default)]
 struct AiActionBuffer {
-    pub latest_action: [f32; 4]
+    pub latest_action: [f32; 4],
 }
 
 pub enum Controller {
@@ -48,26 +56,34 @@ pub(super) struct InputSystemPlugin;
 
 impl Plugin for InputSystemPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app
-            .add_systems(Update, (human_input_system, ai_input_system).in_set(InputSystems))
-            .init_resource::<AiActionBuffer>();
+        app.add_systems(
+            Update,
+            (human_input_system, ai_input_system).in_set(InputSystems),
+        )
+        .init_resource::<AiActionBuffer>();
     }
 }
 
 fn ai_input_system(
     action_buffer: Res<AiActionBuffer>,
-    query: Query<(&Transform, &mut CharacterIntent), With<AiControlled>>
+    query: Query<(&Transform, &mut CharacterIntent), With<AiControlled>>,
 ) {
     let actions = action_buffer.latest_action;
 
     for (transform, mut intent) in query {
         let mut direction = Vec2::ZERO;
 
-        if actions[0] > 0.3 { direction.x += 1.; }
-        else if actions[0] < -0.3 { direction.x -= 1.; }
+        if actions[0] > 0.3 {
+            direction.x += 1.;
+        } else if actions[0] < -0.3 {
+            direction.x -= 1.;
+        }
 
-        if actions[1] > 0.3 { direction.y += 1.; }
-        else if actions[1] < -0.3 { direction.y -= 1.; }
+        if actions[1] > 0.3 {
+            direction.y += 1.;
+        } else if actions[1] < -0.3 {
+            direction.y -= 1.;
+        }
 
         intent.move_direction = direction;
 

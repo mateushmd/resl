@@ -1,8 +1,21 @@
 use avian2d::{collision::collider::Collider, dynamics::rigid_body::RigidBody};
 use bevy::{
-    app::{FixedUpdate, Plugin, PostStartup}, asset::Handle, ecs::{
-        component::Component, entity, hierarchy::Children, message::{MessageReader, MessageWriter}, query::With, resource::Resource, schedule::IntoScheduleConfigs, system::{Commands, EntityCommands, Query, Res},
-    }, math::{Quat, Vec2}, mesh::Mesh, sprite_render::ColorMaterial, transform::components::Transform,
+    app::{FixedUpdate, Plugin, PostStartup},
+    asset::Handle,
+    ecs::{
+        component::Component,
+        entity,
+        hierarchy::Children,
+        message::{MessageReader, MessageWriter},
+        query::With,
+        resource::Resource,
+        schedule::IntoScheduleConfigs,
+        system::{Commands, EntityCommands, Query, Res},
+    },
+    math::{Quat, Vec2},
+    mesh::Mesh,
+    sprite_render::ColorMaterial,
+    transform::components::Transform,
 };
 
 use crate::{
@@ -56,7 +69,7 @@ impl Player {
                 player_assets.body_mesh.clone(),
                 match team {
                     Team::Attackers => player_assets.attacker_color.clone(),
-                    Team::Defenders => player_assets.defender_color.clone()
+                    Team::Defenders => player_assets.defender_color.clone(),
                 },
             );
         });
@@ -105,8 +118,7 @@ pub(super) struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app
-            .add_plugins(BodyPlugin)
+        app.add_plugins(BodyPlugin)
             .add_systems(PostStartup, setup)
             .add_systems(
                 FixedUpdate,
@@ -119,8 +131,7 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn setup(mut commands: Commands, player_assets: Res<PlayerAssets>) {
-}
+fn setup(mut commands: Commands, player_assets: Res<PlayerAssets>) {}
 
 fn children_rotation(
     parent_query: Query<(&CharacterIntent, &Children), With<Player>>,
