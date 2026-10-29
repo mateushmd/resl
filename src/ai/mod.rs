@@ -36,11 +36,10 @@ use crate::{
     LayerMasks, Team,
 };
 
+mod enemy_vision;
+
 const FOV_RADIANS: f32 = 1.57;
-const MAX_VISIBLE_ENEMIES: usize = 2;
 const SELF_DATA_COUNT: usize = 3;
-const ENEMY_POINTS: usize = 4;
-const ENEMY_POINT_DATA_COUNT: usize = 3;
 
 #[derive(Component, Default)]
 pub struct AiObservation {
