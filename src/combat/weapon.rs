@@ -1,4 +1,4 @@
-use crate::{combat::health::DamageMessage, sfx::SpawnSfxExt, LayerMasks};
+use crate::{LayerMasks, combat::health::DamageMessage, sfx::SpawnSfxExt};
 use avian2d::{
     dynamics::rigid_body::LinearVelocity,
     spatial_query::{SpatialQuery, SpatialQueryFilter},

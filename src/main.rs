@@ -1,9 +1,9 @@
-use avian2d::{debug_render::PhysicsDebugPlugin, PhysicsPlugins};
+use avian2d::{PhysicsPlugins, debug_render::PhysicsDebugPlugin};
 use bevy::{
+    DefaultPlugins,
     app::{App, PluginGroup},
     utils::default,
     window::{Window, WindowPlugin},
-    DefaultPlugins,
 };
 use resl::RESLPlugin;
 

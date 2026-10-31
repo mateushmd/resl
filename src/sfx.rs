@@ -1,6 +1,6 @@
 use bevy::{
     app::{Plugin, Update},
-    color::{palettes::css, Alpha},
+    color::{Alpha, palettes::css},
     ecs::{
         component::Component,
         entity::Entity,

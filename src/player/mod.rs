@@ -19,6 +19,7 @@ use bevy::{
 };
 
 use crate::{
+    Team,
     character_controller::CharacterController,
     combat::{
         health::{DeathMessage, Health},
@@ -26,7 +27,6 @@ use crate::{
     },
     input_system::{AiControlled, CharacterIntent, Controller, HumanControlled},
     player::body::{BodyPlugin, SpawnBodyExt},
-    Team,
 };
 
 pub mod body;

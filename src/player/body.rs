@@ -12,16 +12,16 @@ use bevy::{
         relationship::RelatedSpawnerCommands,
         system::{Commands, ResMut},
     },
-    math::{primitives::Triangle2d, Vec2, Vec3},
+    math::{Vec2, Vec3, primitives::Triangle2d},
     mesh::{Mesh, Mesh2d},
     sprite_render::{ColorMaterial, MeshMaterial2d},
     transform::components::Transform,
 };
 
 use crate::{
+    LayerMasks, Team,
     combat::health::DamageTargetReference,
     player::{PlayerAssets, Rotate},
-    LayerMasks, Team,
 };
 
 const BASE_SCALE: f32 = 32.;

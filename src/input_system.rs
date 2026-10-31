@@ -5,9 +5,9 @@ use bevy::{
         query::With,
         resource::Resource,
         schedule::{IntoScheduleConfigs, SystemSet},
-        system::{command::init_resource, Query, Res, Single},
+        system::{Query, Res, Single, command::init_resource},
     },
-    input::{keyboard::KeyCode, mouse::MouseButton, ButtonInput},
+    input::{ButtonInput, keyboard::KeyCode, mouse::MouseButton},
     math::{EulerRot, Vec2},
     transform::components::Transform,
 };
